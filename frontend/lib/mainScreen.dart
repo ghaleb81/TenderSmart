@@ -64,11 +64,11 @@ class _MainScreenState extends State<MainScreen> {
       budget: 3333333,
     ),
   ];
-  void onDeleteTender(Tender tender) {
-    setState(() {
-      _currentTenders.remove(tender);
-    });
-  }
+  // void onDeleteTender(Tender tender) {
+  //   setState(() {
+  //     _currentTenders.remove(tender);
+  //   });
+  // }
 
   // @override
   // void setState() {

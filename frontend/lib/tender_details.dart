@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tendersmart/add_bid.dart';
 import 'package:tendersmart/models/Tender.dart';
 
 class TenderDetails extends StatelessWidget {
@@ -27,103 +28,146 @@ class TenderDetails extends StatelessWidget {
         centerTitle: true,
         title: Text('تفاصيل المناقصة', style: TextStyle(fontSize: 20)),
       ),
-      body: SizedBox(
-        child: Column(
-          children: [
-            // ListView.builder(
-            //   itemCount: tenders.length,
-            //   itemBuilder: (context, index) {
+      body: SingleChildScrollView(
+        child: SizedBox(
+          child: Column(
+            children: [
+              // ListView.builder(
+              //   itemCount: tenders.length,
+              //   itemBuilder: (context, index) {
 
-            // return Expanded(
-            // child:
-            Card(
-              color: Colors.blue[200],
-              margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${tender.title}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+              // return Expanded(
+              // child:
+              Card(
+                color: Colors.blue[200],
+                margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Expanded(
+                    child: Column(
+                      // crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${tender.title}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Column(
-                          // crossAxisAlignment: CrossAxisAlignment.center,
-                          // mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                // Icon(Icons.title),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-
-                                    children: [],
+                        SizedBox(height: 8),
+                        Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Column(
+                            // mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text("الموقع: ${tender.location}"),
+                                  Icon(Icons.location_city),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text("يبدأ في: ${tender.expectedStartTime}"),
+                                  Icon(Icons.lock_clock),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    " عدد الشروط الفنية: ${tender.numberOfTechnicalConditions}",
                                   ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.location_city),
-                                Text("الموقع: ${tender.location}"),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.lock_clock),
-                                Text("يبدأ في: ${tender.expectedStartTime}"),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.functions),
-                                Text(
-                                  " عدد الشروط الفنية: ${tender.numberOfTechnicalConditions}",
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.money),
-                                Text(" الميزانية: ${tender.budget}"),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.announcement),
-                                Text("الحالة : ${tender.stateOfTender.name}"),
-                              ],
-                            ),
-                          ],
+                                  Icon(Icons.functions),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "الموعد النهائي للتقديم: ${tender.registrationDeadline}",
+                                  ),
+                                  Icon(Icons.functions),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    " عدد أيام التنفيذ  : ${tender.implementationPeriod}",
+                                  ),
+                                  Icon(Icons.summarize),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(" الميزانية: ${tender.budget}"),
+                                  Icon(Icons.money),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text("الحالة : ${tender.stateOfTender.name}"),
+                                  Icon(Icons.announcement),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            Center(
-              child: Text(
+              Text(
+                textAlign: TextAlign.center,
                 " ${tender.descripe}",
                 softWrap: true,
                 overflow: TextOverflow.visible,
               ),
-            ),
-          ],
+              SizedBox(height: 150),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => AddBid(),
+                      );
+                    },
+                    label: Text(
+                      'إضافة عرض',
+                      style: TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    icon: Icon(Icons.add),
+                  ),
+                  Spacer(),
+                  ElevatedButton.icon(
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
+                    ),
+                    onPressed: () {},
+                    label: Text(
+                      'حفظ المناقصة',
+                      style: TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    icon: Icon(Icons.save),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

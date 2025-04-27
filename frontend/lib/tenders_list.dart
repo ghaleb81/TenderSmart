@@ -10,16 +10,20 @@ class TenderListPage extends StatelessWidget {
     required this.tenders,
     // required this.showTenderDetails,
     required this.switchScreenToTenders,
-    // required this.switchScreenToTenderDetails,
 
-    // required this.onDeleteTender,
+    // required this.switchScreenToTenderDetails,
+    required this.onDeleteTender,
   });
+  // void onDeleteTender(Tender tender) {
+  //   tenders.remove(tender);
+  // }
+
   final List<Tender> tenders;
   // final void Function() showTenderDetails;
   final List colors = [Colors.lightGreen, Colors.redAccent];
   final void Function() switchScreenToTenders;
   // final void Function() switchScreenToTenderDetails;
-  // final void Function(Tender tender) onDeleteTender;
+  final void Function(Tender tender) onDeleteTender;
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -54,16 +58,11 @@ class TenderListPage extends StatelessWidget {
                           children: [
                             // Icon(Icons.title),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-
-                                children: [
-                                  Text(
-                                    " ${tender.descripe}",
-                                    softWrap: true,
-                                    overflow: TextOverflow.visible,
-                                  ),
-                                ],
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                " ${tender.descripe}",
+                                softWrap: true,
+                                overflow: TextOverflow.visible,
                               ),
                             ),
                           ],
@@ -95,9 +94,10 @@ class TenderListPage extends StatelessWidget {
                         //   ],
                         // ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(Icons.announcement),
                             Text("الحالة : ${tender.stateOfTender.name}"),
+                            Icon(Icons.announcement),
                           ],
                         ),
                         SizedBox(height: 10),
@@ -174,7 +174,8 @@ class TenderListPage extends StatelessWidget {
                                           ),
                                           TextButton(
                                             onPressed: () {
-                                              // onDeleteTender(tenders[index]);
+                                              onDeleteTender(tender);
+                                              Navigator.pop(ctx);
                                             },
                                             child: Text('نعم'),
                                           ),

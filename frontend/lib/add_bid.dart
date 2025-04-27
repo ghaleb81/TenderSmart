@@ -3,8 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:tendersmart/models/Tender.dart';
 
 class AddBid extends StatefulWidget {
-  const AddBid({super.key, required this.onAddExpense});
-  final void Function(Tender expense) onAddExpense;
+  const AddBid({
+    super.key,
+    //  required this.onAddExpense
+  });
+  // final void Function(Tender expense) onAddExpense;
 
   @override
   State<AddBid> createState() => _AddBidState();
@@ -154,22 +157,23 @@ class _AddBidState extends State<AddBid> {
                       );
                       // log(_titleController.text);
                       // log(_amountController.text);
-                    } else {
-                      widget.onAddExpense(
-                        Tender(
-                          stateOfTender: _selectedCategory,
-                          expectedStartTime: _selectedDate!,
-                          title: _titleController.text,
-                          budget: enteredAmount,
-                          descripe: '',
-                          location: '',
-                          implementationPeriod: 3,
-                          numberOfTechnicalConditions: 4,
-                          registrationDeadline: DateTime(2000),
-                        ),
-                      );
-                      Navigator.pop(context);
                     }
+                    // else {
+                    //   widget.onAddExpense(
+                    //     Tender(
+                    //       stateOfTender: _selectedCategory,
+                    //       expectedStartTime: _selectedDate!,
+                    //       title: _titleController.text,
+                    //       budget: enteredAmount,
+                    //       descripe: '',
+                    //       location: '',
+                    //       implementationPeriod: 3,
+                    //       numberOfTechnicalConditions: 4,
+                    //       registrationDeadline: DateTime(2000),
+                    //     ),
+                    //   );
+                    //   Navigator.pop(context);
+                    // }
                   },
                   child: Text('Save Expense'),
                   // child: Text('save Expense'),

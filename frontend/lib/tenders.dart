@@ -9,77 +9,27 @@ class Tenders extends StatefulWidget {
     super.key,
     required this.switchScreenToTenders,
     required this.currentTenders,
-    // required this.onDeleteTender,
   });
   void Function() switchScreenToTenders;
   final List<Tender> currentTenders;
-  // final void Function(Tender tender) onDeleteTender;
   @override
   State<Tenders> createState() => _TendersState();
 }
 
 class _TendersState extends State<Tenders> {
   String currentUserRole = 'admin';
-  // final List<Tender> _currentTenders = [
-  //   Tender(
-  //     title: 'إدارة مقصف كلية الهندسة المعلوماتية',
-  //     descripe:
-  //         'كلية المعلوماتية التابعة لجامعة الشام الخاصة بحاجة لاستثمار للمقصف بداخلها وادارة خدمة الطلاب على مدار دوام الكلية من الساعة 8 صباحاً حتى 3 عصراً',
-  //     location: 'ريف دمشق_التل',
-  //     implementationPeriod: 15,
-  //     numberOfTechnicalConditions: 3,
-  //     registrationDeadline: DateTime(2025, 23, 4),
-  //     stateOfTender: StateOfTender.opened,
-  //     expectedStartTime: DateTime(2025, 12, 4),
-  //     budget: 400000.33,
-  //   ),
-  //   Tender(
-  //     title: 'إدارة المركز الطبي في جامعة الشام الخاصة',
-  //     descripe:
-  //         'جامعة الشام الخاصة بحاجة لاستثمار للمركز الطبي بداخلها وادارة خدمة المرضى على مدار دوام الكلية من الساعة 8 صباحاً حتى 4 عصراً',
-  //     location: 'ريف دمشق_التل',
-  //     implementationPeriod: 20,
-  //     numberOfTechnicalConditions: 7,
-  //     registrationDeadline: DateTime(2025, 23, 4),
-  //     stateOfTender: StateOfTender.opened,
-  //     expectedStartTime: DateTime(2025, 23, 4),
-  //     budget: 33333.222,
-  //   ),
-  //   Tender(
-  //     title: 'إدارة مكتبة في كلية الطب البشري',
-  //     descripe: 'descripe',
-  //     location: 'ريف دمشق_التل',
-  //     implementationPeriod: 10,
-  //     numberOfTechnicalConditions: 9,
-  //     registrationDeadline: DateTime(2025, 23, 4),
-  //     stateOfTender: StateOfTender.opened,
-  //     expectedStartTime: DateTime(2025, 23, 4),
-  //     budget: 2220022,
-  //   ),
-  //   Tender(
-  //     title: 'توريد مستلزمات طبية لكلية طب الأسنان',
-  //     descripe: 'descripe',
-  //     location: 'دمشق_المزرعة',
-  //     implementationPeriod: 28,
-  //     numberOfTechnicalConditions: 5,
-  //     registrationDeadline: DateTime(2025, 23, 4),
-  //     stateOfTender: StateOfTender.opened,
-  //     expectedStartTime: DateTime(2025, 23, 4),
-  //     budget: 3333333,
-  //   ),
-  // ];
 
   void _addtender(Tender ten) {
     setState(() {
       widget.currentTenders.add(ten);
     });
   }
-  //  void switchScreenToNewTender() {
-  //   setState(() {
-  //     // log(selectedAnswer.toString());
-  //     widget.activeScreen = Tenders();
-  //   });
-  // }
+
+  void _deleteTender(Tender tender) {
+    setState(() {
+      widget.currentTenders.remove(tender);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,23 +69,10 @@ class _TendersState extends State<Tenders> {
                             top: Radius.circular(20),
                           ),
                         ),
-                        // padding: EdgeInsets.all(16),
                         child: NewTender(onAddTender: _addtender),
                       ),
                 );
               },
-              // switchScreenToAddTenderM,
-              // showModalBottomSheet(
-              //   context: context,
-              //   builder: (ctx) => NewTender(onAddExpense: _addtender),
-              // );
-
-              // log(_currentTenders.length.toString());
-              //showModalBottomSheet(context: context, builder:(ctx)=>)
-              // showModalBottomSheet(
-              //   context: context,
-              //   // builder: (ctx) => NewExpense(onAddExpense: _addExpense),
-              // );
               icon: Icon(Icons.add),
             )
           else
@@ -150,7 +87,7 @@ class _TendersState extends State<Tenders> {
             child: TenderListPage(
               tenders: widget.currentTenders,
               switchScreenToTenders: widget.switchScreenToTenders,
-              // onDeleteTender: widget.onDeleteTender(Tender tender)
+              onDeleteTender: _deleteTender,
             ),
           ),
         ],
