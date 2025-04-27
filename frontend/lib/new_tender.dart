@@ -1,0 +1,294 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:tendersmart/models/Tender.dart';
+
+class NewTender extends StatefulWidget {
+  const NewTender({super.key, required this.onAddTender});
+  final void Function(Tender tender) onAddTender;
+
+  @override
+  State<NewTender> createState() => _NewTenderState();
+}
+
+class _NewTenderState extends State<NewTender> {
+  // var _title = '';
+  // _saveChangeTitle(String inputUser){
+  //   setState(() {
+  //     _title = inputUser;
+  //   });
+  // }
+  final _titleController = TextEditingController();
+  final _descripeController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _implmentationPeriodController = TextEditingController();
+  final _numberOfTechnicalConditionsController = TextEditingController();
+  final _budgetController = TextEditingController();
+  // final _numberOfTechnicalConditionsController = TextEditingController();
+  final formatter = DateFormat.yMd();
+  DateTime? _expectedStartTime;
+  DateTime? _registrationDeadline;
+  StateOfTender _selectedState = StateOfTender.opened;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _budgetController.dispose();
+    _descripeController.dispose();
+    _implmentationPeriodController.dispose();
+    _numberOfTechnicalConditionsController.dispose();
+    _locationController.dispose();
+  } //لتدمير الكونتولار بعد الانتهاء من العمل
+
+  @override
+  Widget build(BuildContext context) {
+    return
+    // DraggableScrollableSheet(
+    //   expand: true,
+    //   builder: (context, scrollController) {
+    //     return SingleChildScrollView(
+    //       controller: scrollController,
+    //       child: Center(
+    //  SizedBox(
+    //   child: Container(
+    Padding(
+      padding: EdgeInsets.only(
+        top: 16,
+        left: 16,
+        right: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            TextField(
+              decoration: InputDecoration(label: Text('العنوان')),
+              // onChanged: _saveChangeTitle,
+              controller: _titleController,
+              maxLength: 75,
+            ),
+            TextField(
+              decoration: InputDecoration(label: Text('الوصف')),
+              // onChanged: _saveChangeTitle,
+              controller: _descripeController,
+              // maxLength: ,
+            ),
+            TextField(
+              decoration: InputDecoration(label: Text('الموقع')),
+              // onChanged: _saveChangeTitle,
+              controller: _locationController,
+              keyboardType: TextInputType.streetAddress,
+            ),
+            TextField(
+              decoration: InputDecoration(label: Text('وقت التنفيذ(بالأيام)')),
+              // onChanged: _saveChangeTitle,
+              controller: _implmentationPeriodController,
+              keyboardType: TextInputType.numberWithOptions(decimal: false),
+            ),
+            TextField(
+              decoration: InputDecoration(label: Text('عدد الشروط الفنية')),
+              // onChanged: _saveChangeTitle,
+              controller: _numberOfTechnicalConditionsController,
+              keyboardType: TextInputType.numberWithOptions(decimal: false),
+            ),
+            // TextField(
+            //   decoration: InputDecoration(label: Text('الميزانية')),
+            //   // onChanged: _saveChangeTitle,
+            //   controller: _budgetController,
+            //   keyboardType: TextInputType.number,
+            // ),
+            TextField(
+              controller: _budgetController,
+              keyboardType:
+                  TextInputType
+                      .number, // ال لتعريف نمط المدخلات التي سيدخلها المستخدم
+              decoration: InputDecoration(
+                prefixText: 'ٍS.P', //لوضع شيء ثابت قبل النص المدخل
+                label: Text('الميزانية'),
+              ),
+              // onChanged: _saveChangeTitle,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        _expectedStartTime == null
+                            ? 'الوقت المتوقع للبدء'
+                            : formatter.format(_expectedStartTime!),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          final now = DateTime.now();
+                          final firstDate = DateTime(
+                            now.year - 1,
+                            now.month,
+                            now.day,
+                          );
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            firstDate: firstDate,
+                            lastDate: now,
+                            // initialDate: now,
+                          );
+                          setState(() {
+                            _expectedStartTime = pickedDate;
+                          });
+                        },
+                        icon: Icon(Icons.calendar_month),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        _registrationDeadline == null
+                            ? 'آخر موعد للتقديم'
+                            : formatter.format(_registrationDeadline!),
+                      ),
+                      IconButton(
+                        onPressed: () async {
+                          final now = DateTime.now();
+                          final firstDate = DateTime(
+                            now.year - 1,
+                            now.month,
+                            now.day,
+                          );
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            firstDate: firstDate,
+                            lastDate: now,
+                            // initialDate: now,
+                          );
+                          setState(() {
+                            _registrationDeadline = pickedDate;
+                          });
+                        },
+                        icon: Icon(Icons.calendar_month),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 5),
+            Row(
+              children: [
+                DropdownButton(
+                  value: _selectedState,
+                  items:
+                      StateOfTender.values
+                          .map(
+                            (e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(e.name.toUpperCase()),
+                            ),
+                          )
+                          .toList(),
+                  onChanged: (newCat) {
+                    if (newCat == null) {
+                      return;
+                    }
+                    setState(() {
+                      _selectedState = newCat;
+                    });
+                  },
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final double? enteredBudget = double.tryParse(
+                      _budgetController.text,
+                    );
+                    final bool budgetIsInvalid =
+                        enteredBudget == null || enteredBudget <= 0;
+
+                    final int? enteredImplementationPeriod = int.tryParse(
+                      _implmentationPeriodController.text,
+                    );
+                    final bool implementationPeriodIsInvalid =
+                        enteredImplementationPeriod == null ||
+                        enteredImplementationPeriod <= 0;
+                    final int? enterednumberOfTechnicalConditions =
+                        int.tryParse(
+                          _numberOfTechnicalConditionsController.text,
+                        );
+                    final bool numberOfTechnicalConditionsIsInvalid =
+                        enterednumberOfTechnicalConditions == null ||
+                        enterednumberOfTechnicalConditions <= 0;
+                    //final snackBar = SnackBar(content: Text('Error'));
+                    if (_titleController.text.trim().isEmpty ||
+                        _descripeController.text.trim().isEmpty ||
+                        _locationController.text.trim().isEmpty ||
+                        budgetIsInvalid ||
+                        implementationPeriodIsInvalid ||
+                        numberOfTechnicalConditionsIsInvalid ||
+                        _expectedStartTime == null ||
+                        _registrationDeadline == null) {
+                      // ScaffoldMessenger.of(context).showSnackBar(snackBar);عرض رسالة خطأ لثواني معدودة
+                      showDialog(
+                        context: context,
+                        builder:
+                            (ctx) => AlertDialog(
+                              // title: Text('Invaled Input'),
+                              // backgroundColor: Colors.blue,
+                              icon: Icon(Icons.warning),
+                              title: Center(
+                                child: Text(
+                                  'إدخال خاطئ',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    // backgroundColor: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                              content: Text('الرجاء إدخال قيم صحيحية'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: Text('حسناً'),
+                                ),
+                              ],
+                            ),
+                      );
+                      // log(_titleController.text);
+                      // log(_amountController.text);
+                    } else {
+                      widget.onAddTender(
+                        Tender(
+                          title: _titleController.text,
+                          descripe: _descripeController.text,
+                          location: _locationController.text,
+                          implementationPeriod: enteredImplementationPeriod,
+                          numberOfTechnicalConditions:
+                              enterednumberOfTechnicalConditions,
+                          registrationDeadline: _expectedStartTime!,
+                          stateOfTender: _selectedState,
+                          budget: enteredBudget,
+                          expectedStartTime: _expectedStartTime!,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text('Save Tender'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
