@@ -8,21 +8,11 @@ class TenderListPage extends StatelessWidget {
   TenderListPage({
     super.key,
     required this.tenders,
-    // required this.showTenderDetails,
-    required this.switchScreenToTenders,
-
-    // required this.switchScreenToTenderDetails,
     required this.onDeleteTender,
   });
-  // void onDeleteTender(Tender tender) {
-  //   tenders.remove(tender);
-  // }
 
   final List<Tender> tenders;
-  // final void Function() showTenderDetails;
   final List colors = [Colors.lightGreen, Colors.redAccent];
-  final void Function() switchScreenToTenders;
-  // final void Function() switchScreenToTenderDetails;
   final void Function(Tender tender) onDeleteTender;
   @override
   Widget build(BuildContext context) {
@@ -96,7 +86,7 @@ class TenderListPage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text("الحالة : ${tender.stateOfTender.name}"),
+                            Text("${tender.stateOfTender.name}: الحالة"),
                             Icon(Icons.announcement),
                           ],
                         ),
@@ -110,8 +100,6 @@ class TenderListPage extends StatelessWidget {
                                   MaterialPageRoute(
                                     builder:
                                         (context) => TenderDetails(
-                                          switchScreenToTenders:
-                                              switchScreenToTenders,
                                           tender: tenders[index],
                                         ),
                                   ),
@@ -166,18 +154,51 @@ class TenderListPage extends StatelessWidget {
                                         ),
                                         content: Text(
                                           'هل أنت متأكد من حذف المناقصة',
+                                          textAlign: TextAlign.center,
                                         ),
                                         actions: [
                                           TextButton(
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  WidgetStatePropertyAll(
+                                                    const Color.fromARGB(
+                                                      255,
+                                                      80,
+                                                      222,
+                                                      85,
+                                                    ),
+                                                  ),
+                                            ),
                                             onPressed: () => Navigator.pop(ctx),
-                                            child: Text('لا'),
+                                            child: Text(
+                                              'لا',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
                                           ),
                                           TextButton(
+                                            style: ButtonStyle(
+                                              backgroundColor:
+                                                  WidgetStatePropertyAll(
+                                                    const Color.fromARGB(
+                                                      255,
+                                                      254,
+                                                      91,
+                                                      80,
+                                                    ),
+                                                  ),
+                                            ),
                                             onPressed: () {
                                               onDeleteTender(tender);
                                               Navigator.pop(ctx);
                                             },
-                                            child: Text('نعم'),
+                                            child: Text(
+                                              'نعم',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),

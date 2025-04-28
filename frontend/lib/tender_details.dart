@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:tendersmart/add_bid.dart';
 import 'package:tendersmart/models/Tender.dart';
+import 'package:tendersmart/tenders.dart';
+import 'package:tendersmart/tenders_list.dart';
 
 class TenderDetails extends StatelessWidget {
   TenderDetails({
     super.key,
-    required this.switchScreenToTenders,
     required this.tender,
     // required this.tenders,
     // required this.tender,
   });
-  void Function() switchScreenToTenders;
   final Tender tender;
   // int index;
   // final List<Tender> tenders;
@@ -21,7 +21,7 @@ class TenderDetails extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: switchScreenToTenders,
+          onPressed: () => Navigator.pop(context),
           icon: Icon(Icons.arrow_back),
         ),
         backgroundColor: Colors.blue,
@@ -141,10 +141,14 @@ class TenderDetails extends StatelessWidget {
                       backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
                     ),
                     onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => AddBid(),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AddBid()),
                       );
+                      // showModalBottomSheet(
+                      //   context: context,
+                      //   builder: (context) => AddBid(),
+                      // );
                     },
                     label: Text(
                       'إضافة عرض',
@@ -172,6 +176,4 @@ class TenderDetails extends StatelessWidget {
       ),
     );
   }
-
-  //   ),
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tendersmart/add_contractor.dart';
 import 'package:tendersmart/tenders.dart';
 
 // class Loginscreen extends StatelessWidget {
@@ -92,6 +93,13 @@ class LoginScreen extends StatelessWidget {
                   const Text('ليس لديك حساب؟'),
                   TextButton(
                     onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddContractor(),
+                        ),
+                      );
+
                       // الانتقال إلى صفحة التسجيل
                     },
                     child: const Text('سجّل الآن'),

@@ -89,7 +89,6 @@ class _MainScreenState extends State<MainScreen> {
   void switchScreenToTenders() {
     setState(() {
       activeScreen = Tenders(
-        switchScreenToTenders: switchScreenToTenderDetails,
         currentTenders: _currentTenders,
         // switchScreenToTender: switchScreenToTenders,
         // onDeleteTender: onDeleteTender,
@@ -100,7 +99,6 @@ class _MainScreenState extends State<MainScreen> {
   void switchScreenToTenderDetails() {
     setState(() {
       activeScreen = TenderDetails(
-        switchScreenToTenders: switchScreenToTenders,
         // tenders: _currentTenders,
         tender: _currentTenders[0],
       );

@@ -5,12 +5,7 @@ import 'package:tendersmart/tenders_list.dart';
 import 'package:tendersmart/mainScreen.dart';
 
 class Tenders extends StatefulWidget {
-  Tenders({
-    super.key,
-    required this.switchScreenToTenders,
-    required this.currentTenders,
-  });
-  void Function() switchScreenToTenders;
+  Tenders({super.key, required this.currentTenders});
   final List<Tender> currentTenders;
   @override
   State<Tenders> createState() => _TendersState();
@@ -86,7 +81,6 @@ class _TendersState extends State<Tenders> {
           Expanded(
             child: TenderListPage(
               tenders: widget.currentTenders,
-              switchScreenToTenders: widget.switchScreenToTenders,
               onDeleteTender: _deleteTender,
             ),
           ),
