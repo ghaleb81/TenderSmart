@@ -20,16 +20,17 @@ class _AddBidState extends State<AddBid> {
   //     _title = inputUser;
   //   });
   // }
-  final _titleController = TextEditingController();
-  final _amountController = TextEditingController();
-  final formatter = DateFormat.yMd();
-  DateTime? _selectedDate;
-  StateOfTender _selectedCategory = StateOfTender.opened;
+  final _bid_amountController = TextEditingController();
+  final _completion_time_exceptedController = TextEditingController();
+  final _technical_matched_countController = TextEditingController();
+  final _technical_proposal_pdfController = TextEditingController();
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _amountController.dispose();
+    _bid_amountController.dispose();
+    _completion_time_exceptedController.dispose();
+    _technical_matched_countController.dispose();
+    _technical_proposal_pdfController.dispose();
   } //لتدمير الكونتولار بعد الانتهاء من العمل
 
   @override
@@ -61,140 +62,49 @@ class _AddBidState extends State<AddBid> {
               //width: double.infinity,
               // child:
               TextField(
-                decoration: InputDecoration(label: Text('Title')),
+                decoration: InputDecoration(
+                  label: Text(': الميزانية المقدمة من قبل المقاول'),
+                ),
                 // onChanged: _saveChangeTitle,
-                controller: _titleController,
+                controller: _bid_amountController,
                 maxLength: 50,
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _amountController,
-                      keyboardType:
-                          TextInputType
-                              .number, // ال لتعريف نمط المدخلات التي سيدخلها المستخدم
-                      decoration: InputDecoration(
-                        prefixText: '\$', //لوضع شيء ثابت قبل النص المدخل
-                        label: Text('Amount'),
-                      ),
-                      // onChanged: _saveChangeTitle,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          _selectedDate == null
-                              ? 'No Date Selected'
-                              : formatter.format(_selectedDate!),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            final now = DateTime.now();
-                            final firstDate = DateTime(
-                              now.year - 1,
-                              now.month,
-                              now.day,
-                            );
-                            final DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              firstDate: firstDate,
-                              lastDate: now,
-                              // initialDate: now,
-                            );
-                            setState(() {
-                              _selectedDate = pickedDate;
-                            });
-                          },
-                          icon: Icon(Icons.calendar_month),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              TextField(
+                decoration: InputDecoration(
+                  label: Text(': وقت التنفيذ للمقاول'),
+                ),
+                // onChanged: _saveChangeTitle,
+                controller: _completion_time_exceptedController,
+                maxLength: 50,
               ),
-              SizedBox(height: 5),
+              TextField(
+                decoration: InputDecoration(
+                  label: Text(': عدد الشروط الفنية المطابقة'),
+                ),
+                // onChanged: _saveChangeTitle,
+                controller: _technical_matched_countController,
+                maxLength: 50,
+              ),
+              TextField(
+                decoration: InputDecoration(
+                  label: Text(': ملف العرض الفني المقدم من المقاول'),
+                ),
+                // onChanged: _saveChangeTitle,
+                controller: _technical_proposal_pdfController,
+                maxLength: 50,
+              ),
+              SizedBox(height: 10),
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  DropdownButton(
-                    value: _selectedCategory,
-                    items:
-                        StateOfTender.values
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(e.name.toUpperCase()),
-                              ),
-                            )
-                            .toList(),
-                    onChanged: (newCat) {
-                      if (newCat == null) {
-                        return;
-                      }
-                      setState(() {
-                        _selectedCategory = newCat;
-                      });
-                    },
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('Cancel'),
-                  ),
                   ElevatedButton(
                     onPressed: () {
-                      final double? enteredAmount = double.tryParse(
-                        _amountController.text,
-                      );
-                      final bool amountIsInvalid =
-                          enteredAmount == null || enteredAmount <= 0;
-                      //final snackBar = SnackBar(content: Text('Error'));
-                      if (_titleController.text.trim().isEmpty ||
-                          amountIsInvalid ||
-                          _selectedDate == null) {
-                        // ScaffoldMessenger.of(context).showSnackBar(snackBar);عرض رسالة خطأ لثواني معدودة
-                        showDialog(
-                          context: context,
-                          builder:
-                              (ctx) => AlertDialog(
-                                title: Text('Invaled Input'),
-                                content: Text(
-                                  'please make sure valied title , amount , date and category was entered',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(ctx),
-                                    child: Text('okey'),
-                                  ),
-                                ],
-                              ),
-                        );
-                        // log(_titleController.text);
-                        // log(_amountController.text);
-                      }
-                      // else {
-                      //   widget.onAddExpense(
-                      //     Tender(
-                      //       stateOfTender: _selectedCategory,
-                      //       expectedStartTime: _selectedDate!,
-                      //       title: _titleController.text,
-                      //       budget: enteredAmount,
-                      //       descripe: '',
-                      //       location: '',
-                      //       implementationPeriod: 3,
-                      //       numberOfTechnicalConditions: 4,
-                      //       registrationDeadline: DateTime(2000),
-                      //     ),
-                      //   );
-                      //   Navigator.pop(context);
-                      // }
+                      Navigator.pop(context);
                     },
-                    child: Text('Save Expense'),
-                    // child: Text('save Expense'),
+                    child: Text('Cancel'),
                   ),
+                  SizedBox(height: 10),
+                  ElevatedButton(onPressed: () {}, child: Text('Save')),
                 ],
               ),
             ],

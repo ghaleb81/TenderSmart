@@ -202,11 +202,21 @@ class _NewTenderState extends State<NewTender> {
                   },
                 ),
                 const Spacer(),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel'),
-                ),
                 ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(backgroundColor: Colors.blue[200]),
+                  ),
+                ),
+                SizedBox(width: 5),
+                ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
+                  ),
                   onPressed: () {
                     final double? enteredBudget = double.tryParse(
                       _budgetController.text,
@@ -253,9 +263,17 @@ class _NewTenderState extends State<NewTender> {
                                   ),
                                 ),
                               ),
-                              content: Text('الرجاء إدخال قيم صحيحية'),
+                              content: Text(
+                                'الرجاء إدخال قيم صحيحية',
+                                textAlign: TextAlign.center,
+                              ),
                               actions: [
-                                TextButton(
+                                ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: WidgetStatePropertyAll(
+                                      Colors.blue[200],
+                                    ),
+                                  ),
                                   onPressed: () => Navigator.pop(ctx),
                                   child: Text('حسناً'),
                                 ),
