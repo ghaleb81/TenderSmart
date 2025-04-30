@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tendersmart/add_bid.dart';
+import 'package:tendersmart/bid_list.dart';
+import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
 import 'package:tendersmart/tenders.dart';
 import 'package:tendersmart/tenders_list.dart';
@@ -8,36 +10,34 @@ class TenderDetails extends StatelessWidget {
   TenderDetails({
     super.key,
     required this.tender,
-    // required this.tenders,
-    // required this.tender,
+    required this.bids,
+    required this.addBid,
   });
   final Tender tender;
-  // int index;
-  // final List<Tender> tenders;
-  // final tender;
+  List<Bid> bids;
+  final void Function(Bid bid) addBid;
   @override
   Widget build(BuildContext context) {
-    // final tender = tenders[0];
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back),
-        ),
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.blue,
         centerTitle: true,
+
         title: Text('تفاصيل المناقصة', style: TextStyle(fontSize: 20)),
+
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(Icons.keyboard_arrow_right),
+          ),
+        ],
       ),
+
       body: SingleChildScrollView(
         child: SizedBox(
           child: Column(
             children: [
-              // ListView.builder(
-              //   itemCount: tenders.length,
-              //   itemBuilder: (context, index) {
-
-              // return Expanded(
-              // child:
               Card(
                 color: Colors.blue[200],
                 margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
@@ -119,6 +119,24 @@ class TenderDetails extends StatelessWidget {
                                   Icon(Icons.announcement),
                                 ],
                               ),
+                              SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => BidList(bids: bids),
+                                        ),
+                                      );
+                                    },
+                                    child: Text('قائمة العروض'),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -143,12 +161,10 @@ class TenderDetails extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => AddBid()),
+                        MaterialPageRoute(
+                          builder: (context) => AddBid(addBid: addBid),
+                        ),
                       );
-                      // showModalBottomSheet(
-                      //   context: context,
-                      //   builder: (context) => AddBid(),
-                      // );
                     },
                     label: Text(
                       'إضافة عرض',

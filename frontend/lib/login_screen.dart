@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tendersmart/add_contractor.dart';
+import 'package:tendersmart/models/contractor.dart';
 import 'package:tendersmart/tenders.dart';
 
 // class Loginscreen extends StatelessWidget {
@@ -11,8 +12,14 @@ import 'package:tendersmart/tenders.dart';
 //   Widget build(BuildContext context) {
 
 class LoginScreen extends StatelessWidget {
-  LoginScreen(this.switchScreenToNewTender, {Key? key}) : super(key: key);
+  LoginScreen({
+    super.key,
+    required this.switchScreenToNewTender,
+    required this.addContractor,
+  });
+  // LoginScreen(this.switchScreenToNewTender, {Key? key}) : super(key: key);
   final Function() switchScreenToNewTender;
+  void Function(Contractor contractor) addContractor;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,7 +103,9 @@ class LoginScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddContractor(),
+                          builder:
+                              (context) =>
+                                  AddContractor(addContractor: addContractor),
                         ),
                       );
 

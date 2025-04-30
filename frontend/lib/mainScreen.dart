@@ -1,11 +1,10 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:tendersmart/login_screen.dart';
+import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
-import 'package:tendersmart/new_tender.dart';
+import 'package:tendersmart/models/contractor.dart';
 import 'package:tendersmart/tender_details.dart';
 import 'package:tendersmart/tenders.dart';
-import 'package:tendersmart/tenders_list.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -64,34 +63,102 @@ class _MainScreenState extends State<MainScreen> {
       budget: 3333333,
     ),
   ];
-  // void onDeleteTender(Tender tender) {
-  //   setState(() {
-  //     _currentTenders.remove(tender);
-  //   });
-  // }
+  final List<Bid> bidContractor = [
+    Bid(
+      bid_amount: 3222,
+      completion_time_excepted: 2,
+      technical_matched_count: 5,
+    ),
+    Bid(
+      bid_amount: 444,
+      completion_time_excepted: 3,
+      technical_matched_count: 3,
+    ),
+    Bid(
+      bid_amount: 111,
+      completion_time_excepted: 4,
+      technical_matched_count: 9,
+    ),
+  ];
+  final List<Contractor> contractorList = [
+    Contractor(
+      companyName: 'It Company',
+      commercialRegistrationNumber: 4,
+      companyEmail: 'ghalebmarwa@gmail.com',
+      countryCity: 'Damas',
+      phoneNumber: '0992824259',
+      yearEstablished: DateTime(2010),
+      projectsLast5Years: 9,
+      qualityCertificates: 'qualityCertificates',
+      publicSectorSuccessfulContracts: 'publicSectorSuccessfulContracts',
+      websiteUrlOrLinkedinProfile: 'websiteUrlOrLinkedinProfile',
+      companyBio: 'companyBio',
+      uploadOfficialDocumentsAmount: 'uploadOfficialDocumentsAmount',
+      email: 'email',
+      password: 'password',
+    ),
+    Contractor(
+      companyName: 'QR Company',
+      commercialRegistrationNumber: 2,
+      companyEmail: 'eyadalkhateb@gmail.com',
+      countryCity: 'EAU',
+      phoneNumber: '22333',
+      yearEstablished: DateTime(2010),
+      projectsLast5Years: 9,
+      qualityCertificates: 'qualityCertificates',
+      publicSectorSuccessfulContracts: 'publicSectorSuccessfulContracts',
+      websiteUrlOrLinkedinProfile: 'websiteUrlOrLinkedinProfile',
+      companyBio: 'companyBio',
+      uploadOfficialDocumentsAmount: 'uploadOfficialDocumentsAmount',
+      email: 'email',
+      password: 'password',
+    ),
+    Contractor(
+      companyName: 'MCQ Company',
+      commercialRegistrationNumber: 5,
+      companyEmail: 'marwa@gmail.com',
+      countryCity: 'Syria',
+      phoneNumber: '32323111',
+      yearEstablished: DateTime(2010),
+      projectsLast5Years: 3,
+      qualityCertificates: 'qualityCertificates',
+      publicSectorSuccessfulContracts: 'publicSectorSuccessfulContracts',
+      websiteUrlOrLinkedinProfile: 'websiteUrlOrLinkedinProfile',
+      companyBio: 'companyBio',
+      uploadOfficialDocumentsAmount: 'uploadOfficialDocumentsAmount',
+      email: 'email',
+      password: 'password',
+    ),
+  ];
+  void _addBid(Bid bid) {
+    setState(() {
+      bidContractor.add(bid);
+    });
+  }
 
-  // @override
-  // void setState() {
-
-  //   TenderListPage(
-  //     onDeleteTender: onDeleteTender,
-  //     tenders: _currentTenders,
-  //     showTenderDetails: switchScreenToTenderDetails,
-  //   );
-  // }
+  void _addContractor(Contractor contractor) {
+    setState(() {
+      contractorList.add(contractor);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    activeScreen = LoginScreen(switchScreenToTenders);
+    activeScreen = LoginScreen(
+      switchScreenToNewTender: switchScreenToTenders,
+      addContractor: _addContractor,
+    );
   }
 
   void switchScreenToTenders() {
     setState(() {
       activeScreen = Tenders(
         currentTenders: _currentTenders,
-        // switchScreenToTender: switchScreenToTenders,
-        // onDeleteTender: onDeleteTender,
+        bids: bidContractor,
+        addBid: _addBid,
+        addContractor: _addContractor,
+        switchScreenToNewTender: switchScreenToTenders,
       );
     });
   }
@@ -99,8 +166,9 @@ class _MainScreenState extends State<MainScreen> {
   void switchScreenToTenderDetails() {
     setState(() {
       activeScreen = TenderDetails(
-        // tenders: _currentTenders,
         tender: _currentTenders[0],
+        bids: bidContractor,
+        addBid: _addBid,
       );
     });
   }
@@ -111,9 +179,7 @@ class _MainScreenState extends State<MainScreen> {
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.indigo, Colors.purpleAccent, // Colors.blue],
-            ],
+            colors: [Colors.indigo, Colors.purpleAccent],
           ),
         ),
         child: activeScreen,

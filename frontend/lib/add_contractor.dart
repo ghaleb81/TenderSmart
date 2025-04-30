@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tendersmart/models/contractor.dart';
+
+final _companyNameController = TextEditingController();
+final _commercialRegistrationNumberController = TextEditingController();
+final _companyEmailController = TextEditingController();
+final _countryCityController = TextEditingController();
+final _phoneNumberController = TextEditingController();
+final _yearEstablishedController = TextEditingController();
+final _projectsLast5YearsController = TextEditingController();
+final _qualityCertificatesController = TextEditingController();
+final _publicSectorSuccessfulContractsController = TextEditingController();
+final _websiteUrlLinkedinProfileController = TextEditingController();
+final _companyBioController = TextEditingController();
+final _uploadOfficialDocumentsAmountController = TextEditingController();
 
 class AddContractor extends StatefulWidget {
-  const AddContractor({super.key});
-
+  AddContractor({super.key, required this.addContractor});
+  void Function(Contractor contractot) addContractor;
   @override
   State<AddContractor> createState() => _AddContractorState();
 }
 
 class _AddContractorState extends State<AddContractor> {
-  final _company_nameController = TextEditingController();
-  final _commercial_registration_numberController = TextEditingController();
-  final _company_emailController = TextEditingController();
-  final _country_cityController = TextEditingController();
-  final _phoneNumberController = TextEditingController();
-  final _year_establishedController = TextEditingController();
-  final _projects_last_5_yearsController = TextEditingController();
-  final _quality_certificatesController = TextEditingController();
-  final _public_sector_successful_contractsController = TextEditingController();
-  final _website_url_linkedin_profileController = TextEditingController();
-  final _company_bioController = TextEditingController();
-  final _upload_official_documents_amountController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +33,7 @@ class _AddContractorState extends State<AddContractor> {
             TextField(
               decoration: InputDecoration(label: Text(': اسم الشركة')),
               // onChanged: _saveChangeTitle,
-              controller: _company_nameController,
+              controller: _companyNameController,
               maxLength: 50,
             ),
             TextField(
@@ -39,7 +41,7 @@ class _AddContractorState extends State<AddContractor> {
                 label: Text(': رقم السجل التجاري/الترخيص'),
               ),
               // onChanged: _saveChangeTitle,
-              controller: _commercial_registration_numberController,
+              controller: _commercialRegistrationNumberController,
               maxLength: 50,
             ),
             TextField(
@@ -47,13 +49,13 @@ class _AddContractorState extends State<AddContractor> {
                 label: Text(': البريد الإلكتروني للشركة'),
               ),
               // onChanged: _saveChangeTitle,
-              controller: _company_emailController,
+              controller: _companyEmailController,
               maxLength: 50,
             ),
             TextField(
               decoration: InputDecoration(label: Text(': الدولة/المدينة')),
               // onChanged: _saveChangeTitle,
-              controller: _country_cityController,
+              controller: _countryCityController,
               maxLength: 50,
             ),
             TextField(
@@ -65,7 +67,7 @@ class _AddContractorState extends State<AddContractor> {
             TextField(
               decoration: InputDecoration(label: Text(': سنة تأسيس الشركة')),
               // onChanged: _saveChangeTitle,
-              controller: _year_establishedController,
+              controller: _yearEstablishedController,
               maxLength: 50,
             ),
             TextField(
@@ -73,13 +75,13 @@ class _AddContractorState extends State<AddContractor> {
                 label: Text(': عدد المشاريع المنفذة آخر 5 سنوات'),
               ),
               // onChanged: _saveChangeTitle,
-              controller: _projects_last_5_yearsController,
+              controller: _projectsLast5YearsController,
               maxLength: 50,
             ),
             TextField(
               decoration: InputDecoration(label: Text(': شهادات الجودة')),
               // onChanged: _saveChangeTitle,
-              controller: _quality_certificatesController,
+              controller: _qualityCertificatesController,
               maxLength: 50,
             ),
             TextField(
@@ -87,7 +89,7 @@ class _AddContractorState extends State<AddContractor> {
                 label: Text(': العقود الناجحة للقطاع العام'),
               ),
               // onChanged: _saveChangeTitle,
-              controller: _public_sector_successful_contractsController,
+              controller: _publicSectorSuccessfulContractsController,
               maxLength: 50,
             ),
             TextField(
@@ -95,13 +97,13 @@ class _AddContractorState extends State<AddContractor> {
                 label: Text(': Website url/linkedin Profile'),
               ),
               // onChanged: _saveChangeTitle,
-              controller: _website_url_linkedin_profileController,
+              controller: _websiteUrlLinkedinProfileController,
               maxLength: 50,
             ),
             TextField(
               decoration: InputDecoration(label: Text(': وصف الشركة')),
               // onChanged: _saveChangeTitle,
-              controller: _company_bioController,
+              controller: _companyBioController,
               maxLength: 50,
             ),
             TextField(
@@ -109,7 +111,7 @@ class _AddContractorState extends State<AddContractor> {
                 label: Text(': تحميل الوثائق الرسمية'),
               ),
               // onChanged: _saveChangeTitle,
-              controller: _upload_official_documents_amountController,
+              controller: _uploadOfficialDocumentsAmountController,
               maxLength: 50,
             ),
             Row(
@@ -133,7 +135,10 @@ class _AddContractorState extends State<AddContractor> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ContractorInformation(),
+                        builder:
+                            (context) => ContractorInformation(
+                              addContractor: widget.addContractor,
+                            ),
                       ),
                     );
                   },
@@ -149,15 +154,49 @@ class _AddContractorState extends State<AddContractor> {
 }
 
 class ContractorInformation extends StatefulWidget {
-  const ContractorInformation({super.key});
-
+  ContractorInformation({super.key, required this.addContractor});
+  void Function(Contractor contractor) addContractor;
   @override
   State<ContractorInformation> createState() => _ContractorInformationState();
 }
 
 class _ContractorInformationState extends State<ContractorInformation> {
-  final _cotractorEmailController = TextEditingController();
-  final _cotractorPasswordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  void _submit() {
+    String emailOfCompany = _companyEmailController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    if (ContractorValidator.isValid(email, password, emailOfCompany)) {
+      // widget.addContractor(
+      //   Contractor(
+      //     companyName: companyName,
+      //     commercialRegistrationNumber: commercialRegistrationNumber,
+      //     companyEmail: companyEmail,
+      //     countryCity: countryCity,
+      //     phoneNumber: phoneNumber,
+      //     yearEstablished: yearEstablished,
+      //     projectsLast5Years: projectsLast5Years,
+      //     qualityCertificates: qualityCertificates,
+      //     publicSectorSuccessfulContracts: publicSectorSuccessfulContracts,
+      //     websiteUrlOrLinkedinProfile: websiteUrlOrLinkedinProfile,
+      //     companyBio: companyBio,
+      //     uploadOfficialDocumentsAmount: uploadOfficialDocumentsAmount,
+      //     email: email,
+      //     password: password,
+      //   ),
+      // );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('تم تسجيل الدخول بنجاح')));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('البريد الإلتروني أو كلمة المرور غير صالحين')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,19 +213,26 @@ class _ContractorInformationState extends State<ContractorInformation> {
                 label: Text(': البريد الإلتروني', textAlign: TextAlign.center),
               ),
               keyboardType: TextInputType.emailAddress,
-              controller: _cotractorEmailController,
+              controller: _emailController,
             ),
             TextField(
               textAlign: TextAlign.end,
               decoration: InputDecoration(label: Text(': كلمة المرور')),
-              keyboardType: TextInputType.visiblePassword,
-              controller: _cotractorPasswordController,
+              // keyboardType: TextInputType.visiblePassword,
+              obscureText: true,
+              controller: _passwordController,
             ),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(onPressed: () {}, child: Text('Save')),
+                ElevatedButton(
+                  onPressed: () {
+                    _submit();
+                    // Navigator.pop(context);
+                  },
+                  child: Text('Save'),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);

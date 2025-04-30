@@ -11,19 +11,12 @@ class NewTender extends StatefulWidget {
 }
 
 class _NewTenderState extends State<NewTender> {
-  // var _title = '';
-  // _saveChangeTitle(String inputUser){
-  //   setState(() {
-  //     _title = inputUser;
-  //   });
-  // }
   final _titleController = TextEditingController();
   final _descripeController = TextEditingController();
   final _locationController = TextEditingController();
   final _implmentationPeriodController = TextEditingController();
   final _numberOfTechnicalConditionsController = TextEditingController();
   final _budgetController = TextEditingController();
-  // final _numberOfTechnicalConditionsController = TextEditingController();
   final formatter = DateFormat.yMd();
   DateTime? _expectedStartTime;
   DateTime? _registrationDeadline;
@@ -41,16 +34,7 @@ class _NewTenderState extends State<NewTender> {
 
   @override
   Widget build(BuildContext context) {
-    return
-    // DraggableScrollableSheet(
-    //   expand: true,
-    //   builder: (context, scrollController) {
-    //     return SingleChildScrollView(
-    //       controller: scrollController,
-    //       child: Center(
-    //  SizedBox(
-    //   child: Container(
-    Padding(
+    return Padding(
       padding: EdgeInsets.only(
         top: 16,
         left: 16,
@@ -92,12 +76,6 @@ class _NewTenderState extends State<NewTender> {
               controller: _numberOfTechnicalConditionsController,
               keyboardType: TextInputType.numberWithOptions(decimal: false),
             ),
-            // TextField(
-            //   decoration: InputDecoration(label: Text('الميزانية')),
-            //   // onChanged: _saveChangeTitle,
-            //   controller: _budgetController,
-            //   keyboardType: TextInputType.number,
-            // ),
             TextField(
               controller: _budgetController,
               keyboardType:
