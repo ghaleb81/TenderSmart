@@ -25,7 +25,7 @@ class _MainScreenState extends State<MainScreen> {
       numberOfTechnicalConditions: 3,
       registrationDeadline: DateTime(2025, 23, 4),
       stateOfTender: StateOfTender.opened,
-      expectedStartTime: DateTime(2025, 12, 4),
+      // expectedStartTime: DateTime(2025, 12, 4),
       budget: 400000.33,
     ),
     Tender(
@@ -37,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
       numberOfTechnicalConditions: 7,
       registrationDeadline: DateTime(2025, 23, 4),
       stateOfTender: StateOfTender.opened,
-      expectedStartTime: DateTime(2025, 23, 4),
+      // expectedStartTime: DateTime(2025, 23, 4),
       budget: 33333.222,
     ),
     Tender(
@@ -48,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
       numberOfTechnicalConditions: 9,
       registrationDeadline: DateTime(2025, 23, 4),
       stateOfTender: StateOfTender.opened,
-      expectedStartTime: DateTime(2025, 23, 4),
+      // expectedStartTime: DateTime(2025, 23, 4),
       budget: 2220022,
     ),
     Tender(
@@ -59,26 +59,14 @@ class _MainScreenState extends State<MainScreen> {
       numberOfTechnicalConditions: 5,
       registrationDeadline: DateTime(2025, 23, 4),
       stateOfTender: StateOfTender.opened,
-      expectedStartTime: DateTime(2025, 23, 4),
+      // expectedStartTime: DateTime(2025, 23, 4),
       budget: 3333333,
     ),
   ];
   final List<Bid> bidContractor = [
-    Bid(
-      bid_amount: 3222,
-      completion_time_excepted: 2,
-      technical_matched_count: 5,
-    ),
-    Bid(
-      bid_amount: 444,
-      completion_time_excepted: 3,
-      technical_matched_count: 3,
-    ),
-    Bid(
-      bid_amount: 111,
-      completion_time_excepted: 4,
-      technical_matched_count: 9,
-    ),
+    Bid(bidAmount: 3222, completionTimeExcepted: 2, technicalMatchedCount: 5),
+    Bid(bidAmount: 444, completionTimeExcepted: 3, technicalMatchedCount: 3),
+    Bid(bidAmount: 111, completionTimeExcepted: 4, technicalMatchedCount: 9),
   ];
   final List<Contractor> contractorList = [
     Contractor(
@@ -130,6 +118,7 @@ class _MainScreenState extends State<MainScreen> {
       password: 'password',
     ),
   ];
+  String currentUserRole = 'admin';
   void _addBid(Bid bid) {
     setState(() {
       bidContractor.add(bid);
@@ -146,7 +135,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     activeScreen = LoginScreen(
-      switchScreenToNewTender: switchScreenToTenders,
+      switchScreenToTenders: switchScreenToTenders,
       addContractor: _addContractor,
     );
   }
@@ -158,7 +147,8 @@ class _MainScreenState extends State<MainScreen> {
         bids: bidContractor,
         addBid: _addBid,
         addContractor: _addContractor,
-        switchScreenToNewTender: switchScreenToTenders,
+        switchScreenToTenders: switchScreenToTenders,
+        currentUserRole: currentUserRole,
       );
     });
   }
@@ -169,6 +159,7 @@ class _MainScreenState extends State<MainScreen> {
         tender: _currentTenders[0],
         bids: bidContractor,
         addBid: _addBid,
+        currentUserRole: currentUserRole,
       );
     });
   }

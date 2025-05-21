@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tendersmart/add_contractor.dart';
+import 'package:tendersmart/services/auth_service.dart';
 import 'package:tendersmart/models/contractor.dart';
+import 'package:tendersmart/services/token_storage.dart';
 import 'package:tendersmart/tenders.dart';
 
 // class Loginscreen extends StatelessWidget {
@@ -11,15 +13,42 @@ import 'package:tendersmart/tenders.dart';
 //   @override
 //   Widget build(BuildContext context) {
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({
     super.key,
-    required this.switchScreenToNewTender,
+    required this.switchScreenToTenders,
     required this.addContractor,
   });
   // LoginScreen(this.switchScreenToNewTender, {Key? key}) : super(key: key);
-  final Function() switchScreenToNewTender;
+  final Function() switchScreenToTenders;
   void Function(Contractor contractor) addContractor;
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final emailController = TextEditingController();
+
+  final passwordController = TextEditingController();
+
+  void handleLogin() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final result = await AuthService.login(email, password);
+    if (result != null) {
+      final token = result['token'];
+      final role = result['role'];
+      await TokenStorage.saveToken(token);
+      await TokenStorage.saveRole(role);
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('فشل تسجيل الدخول')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,6 +70,7 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               TextField(
+                controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'البريد الإلكتروني',
                   border: OutlineInputBorder(
@@ -52,6 +82,7 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               TextField(
+                controller: passwordController,
                 decoration: InputDecoration(
                   labelText: 'كلمة المرور',
                   border: OutlineInputBorder(
@@ -75,7 +106,24 @@ class LoginScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: switchScreenToNewTender,
+                  onPressed:
+                      // handleLogin,
+                      //  () async {
+                      //   final email = emailController.text.trim();
+                      //   final password = passwordController.text.trim();
+                      //   final token = await AuthService.login(email, password);
+                      //   if (token != null) {
+                      //     await TokenStorage.saveToken(token);
+                      //     Navigator.pushReplacementNamed(context, 'home');
+                      //     //تسجيل دخول ناجح
+                      //     print('$token: تم تسجيل الدخول التوكن هو');
+                      //   } else {
+                      //     ScaffoldMessenger.of(context).showSnackBar(
+                      //       SnackBar(content: Text('فشل تسجيل الدخول')),
+                      //     );
+                      //   }
+                      // },
+                      widget.switchScreenToTenders,
 
                   // ضع هنا منطق تسجيل الدخول
                   style: ElevatedButton.styleFrom(
@@ -104,8 +152,9 @@ class LoginScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) =>
-                                  AddContractor(addContractor: addContractor),
+                              (context) => AddContractor(
+                                addContractor: widget.addContractor,
+                              ),
                         ),
                       );
 

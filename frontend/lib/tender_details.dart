@@ -12,10 +12,12 @@ class TenderDetails extends StatelessWidget {
     required this.tender,
     required this.bids,
     required this.addBid,
+    required this.currentUserRole,
   });
   final Tender tender;
   List<Bid> bids;
   final void Function(Bid bid) addBid;
+  final String currentUserRole;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,13 +73,13 @@ class TenderDetails extends StatelessWidget {
                                   Icon(Icons.location_city),
                                 ],
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text("يبدأ في: ${tender.expectedStartTime}"),
-                                  Icon(Icons.lock_clock),
-                                ],
-                              ),
+                              // Row(
+                              //   mainAxisAlignment: MainAxisAlignment.end,
+                              //   children: [
+                              //     Text("يبدأ في: ${tender.expectedStartTime}"),
+                              //     Icon(Icons.lock_clock),
+                              //   ],
+                              // ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -123,18 +125,25 @@ class TenderDetails extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => BidList(bids: bids),
-                                        ),
-                                      );
-                                    },
-                                    child: Text('قائمة العروض'),
-                                  ),
+                                  if (currentUserRole == 'admin')
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => BidList(
+                                                  bids: bids,
+                                                  currentUserRole:
+                                                      currentUserRole,
+                                                ),
+                                          ),
+                                        );
+                                      },
+                                      child: Text('قائمة العروض'),
+                                    )
+                                  else
+                                    SizedBox(),
                                 ],
                               ),
                             ],
@@ -153,6 +162,7 @@ class TenderDetails extends StatelessWidget {
               ),
               SizedBox(height: 150),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton.icon(
                     style: ButtonStyle(
@@ -172,7 +182,7 @@ class TenderDetails extends StatelessWidget {
                     ),
                     icon: Icon(Icons.add),
                   ),
-                  Spacer(),
+                  SizedBox(width: 20),
                   ElevatedButton.icon(
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),

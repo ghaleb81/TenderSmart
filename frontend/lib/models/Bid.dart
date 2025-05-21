@@ -1,11 +1,25 @@
 class Bid {
-  final double bid_amount;
-  final int completion_time_excepted;
-  final int technical_matched_count;
+  final double bidAmount;
+  final int completionTimeExcepted;
+  final int technicalMatchedCount;
 
   Bid({
-    required this.bid_amount,
-    required this.completion_time_excepted,
-    required this.technical_matched_count,
+    required this.bidAmount,
+    required this.completionTimeExcepted,
+    required this.technicalMatchedCount,
   });
+  factory Bid.fromJson(Map<String, dynamic> json) {
+    return Bid(
+      bidAmount: json['bidAmount'],
+      completionTimeExcepted: json['completionTimeExcepted'],
+      technicalMatchedCount: json['technicalMatchedCount'],
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'bidAmount': bidAmount,
+      'completionTimeExcepted': completionTimeExcepted,
+      'technicalMatchedCount': technicalMatchedCount,
+    };
+  }
 }

@@ -52,21 +52,29 @@ class _AddBidState extends State<AddBid> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back),
-        ),
+        automaticallyImplyLeading: false,
+        // leading: IconButton(
+        //   onPressed: () => Navigator.pop(context),
+        //   icon: Icon(Icons.arrow_back),
+        // ),
         centerTitle: true,
         backgroundColor: Colors.blue,
         title: const Text(
           'طلب توريد',
           style: TextStyle(color: Colors.black, fontSize: 20),
         ),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(Icons.keyboard_arrow_right),
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Expanded(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(
                 decoration: InputDecoration(
@@ -91,7 +99,7 @@ class _AddBidState extends State<AddBid> {
                 controller: _technical_matched_countController,
                 maxLength: 50,
               ),
-              // FilePickerTextField(),
+              FilePickerTextField(),
               // TextField(
               //   decoration: InputDecoration(
               //     label: Text(': ملف العرض الفني المقدم من المقاول'),
@@ -174,11 +182,10 @@ class _AddBidState extends State<AddBid> {
                       } else {
                         widget.addBid(
                           Bid(
-                            bid_amount: enteredBidAmount,
-                            completion_time_excepted:
+                            bidAmount: enteredBidAmount,
+                            completionTimeExcepted:
                                 enterdCompletionTimeExcepted,
-                            technical_matched_count:
-                                enteredTechnicalMatchedCount,
+                            technicalMatchedCount: enteredTechnicalMatchedCount,
                           ),
                           // Tender(
                           //   title: _titleController.text,

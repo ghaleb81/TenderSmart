@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:tendersmart/models/Bid.dart';
 
 class BidList extends StatefulWidget {
-  BidList({super.key, required this.bids});
+  BidList({super.key, required this.bids, required this.currentUserRole});
   List<Bid> bids;
-
+  final String currentUserRole;
   @override
   State<BidList> createState() => _BidListState();
 }
@@ -42,20 +42,26 @@ class _BidListState extends State<BidList> {
                 Navigator.pop(context);
               },
             ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('التقييم بإستخدام الذكاء الإصطناعي'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('التقييم اليدوي'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+            if (widget.currentUserRole == 'admin')
+              ListTile(
+                leading: Icon(Icons.home),
+                title: Text('التقييم الذكي'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              )
+            else
+              SizedBox(),
+            if (widget.currentUserRole == 'admin')
+              ListTile(
+                leading: Icon(Icons.home),
+                title: Text('التقييم اليدوي'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              )
+            else
+              SizedBox(),
             // OutlinedButton(
             //   onPressed: () {},
             //   child: Text('التقييم بإستخدام الذكاء الاصطناعي'),
@@ -91,7 +97,7 @@ class _BidListState extends State<BidList> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'S.P${bid.bid_amount}',
+                          'S.P${bid.bidAmount}',
                           style: TextStyle(
                             fontSize: 18,
                             // fontWeight: FontWeight.bold,
@@ -118,7 +124,7 @@ class _BidListState extends State<BidList> {
                       children: [
                         Text(
                           textAlign: TextAlign.center,
-                          " ${bid.completion_time_excepted}",
+                          " ${bid.completionTimeExcepted}",
                           softWrap: true,
                           overflow: TextOverflow.visible,
                         ),
@@ -135,7 +141,7 @@ class _BidListState extends State<BidList> {
                       children: [
                         Text(
                           textAlign: TextAlign.center,
-                          " ${bid.technical_matched_count}",
+                          " ${bid.technicalMatchedCount}",
                           softWrap: true,
                           overflow: TextOverflow.visible,
                         ),

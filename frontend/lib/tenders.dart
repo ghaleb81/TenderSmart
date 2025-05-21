@@ -13,14 +13,16 @@ class Tenders extends StatefulWidget {
     required this.currentTenders,
     required this.bids,
     required this.addBid,
-    required this.switchScreenToNewTender,
+    required this.switchScreenToTenders,
     required this.addContractor,
+    required this.currentUserRole,
   });
   final List<Tender> currentTenders;
   final List<Bid> bids;
   final void Function(Bid bid) addBid;
-  final void Function() switchScreenToNewTender;
+  final void Function() switchScreenToTenders;
   final void Function(Contractor contractor) addContractor;
+  final String currentUserRole;
   @override
   State<Tenders> createState() => _TendersState();
 }
@@ -132,13 +134,14 @@ class _TendersState extends State<Tenders> {
       children: [
         Expanded(
           child: TenderListPage(
-            tenders: widget.currentTenders,
+            // tenders: widget.currentTenders,
             onDeleteTender: _deleteTender,
             bids: widget.bids,
             addBid: widget.addBid,
             addContractor: widget.addContractor,
             currentTenders: widget.currentTenders,
-            switchScreenToNewTender: widget.switchScreenToNewTender,
+            switchScreenToTenders: widget.switchScreenToTenders,
+            currentUserRole: widget.currentUserRole,
           ),
         ),
       ],

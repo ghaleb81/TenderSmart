@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tendersmart/models/Tender.dart';
+import 'package:tendersmart/services/tender_service.dart';
 
 class NewTender extends StatefulWidget {
   const NewTender({super.key, required this.onAddTender});
@@ -21,9 +24,11 @@ class _NewTenderState extends State<NewTender> {
   DateTime? _expectedStartTime;
   DateTime? _registrationDeadline;
   StateOfTender _selectedState = StateOfTender.opened;
+  late Future<List<Tender>> tendersFuture;
 
   @override
   void dispose() {
+    super.dispose();
     _titleController.dispose();
     _budgetController.dispose();
     _descripeController.dispose();
@@ -89,39 +94,39 @@ class _NewTenderState extends State<NewTender> {
             ),
             Row(
               children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        _expectedStartTime == null
-                            ? 'الوقت المتوقع للبدء'
-                            : formatter.format(_expectedStartTime!),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          final now = DateTime.now();
-                          final firstDate = DateTime(
-                            now.year - 1,
-                            now.month,
-                            now.day,
-                          );
-                          final DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            firstDate: firstDate,
-                            lastDate: now,
-                            // initialDate: now,
-                          );
-                          setState(() {
-                            _expectedStartTime = pickedDate;
-                          });
-                        },
-                        icon: Icon(Icons.calendar_month),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 16),
+                // Flexible(
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.end,
+                //     children: [
+                //       Text(
+                //         _expectedStartTime == null
+                //             ? 'الوقت المتوقع للبدء'
+                //             : formatter.format(_expectedStartTime!),
+                //       ),
+                //       IconButton(
+                //         onPressed: () async {
+                //           final now = DateTime.now();
+                //           final firstDate = DateTime(
+                //             now.year - 1,
+                //             now.month,
+                //             now.day,
+                //           );
+                //           final DateTime? pickedDate = await showDatePicker(
+                //             context: context,
+                //             firstDate: firstDate,
+                //             lastDate: now,
+                //             // initialDate: now,
+                //           );
+                //           setState(() {
+                //             _expectedStartTime = pickedDate;
+                //           });
+                //         },
+                //         icon: Icon(Icons.calendar_month),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // SizedBox(width: 16),
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -195,7 +200,7 @@ class _NewTenderState extends State<NewTender> {
                   style: ButtonStyle(
                     backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     final double? enteredBudget = double.tryParse(
                       _budgetController.text,
                     );
@@ -222,7 +227,7 @@ class _NewTenderState extends State<NewTender> {
                         budgetIsInvalid ||
                         implementationPeriodIsInvalid ||
                         numberOfTechnicalConditionsIsInvalid ||
-                        _expectedStartTime == null ||
+                        // _expectedStartTime == null ||
                         _registrationDeadline == null) {
                       // ScaffoldMessenger.of(context).showSnackBar(snackBar);عرض رسالة خطأ لثواني معدودة
                       showDialog(
@@ -261,21 +266,49 @@ class _NewTenderState extends State<NewTender> {
                       // log(_titleController.text);
                       // log(_amountController.text);
                     } else {
-                      widget.onAddTender(
-                        Tender(
-                          title: _titleController.text,
-                          descripe: _descripeController.text,
-                          location: _locationController.text,
-                          implementationPeriod: enteredImplementationPeriod,
-                          numberOfTechnicalConditions:
-                              enterednumberOfTechnicalConditions,
-                          registrationDeadline: _expectedStartTime!,
-                          stateOfTender: _selectedState,
-                          budget: enteredBudget,
-                          expectedStartTime: _expectedStartTime!,
-                        ),
+                      final newTender = Tender(
+                        title: _titleController.text,
+                        descripe: _descripeController.text,
+                        location: _locationController.text,
+                        implementationPeriod: enteredImplementationPeriod,
+                        numberOfTechnicalConditions:
+                            enterednumberOfTechnicalConditions,
+                        registrationDeadline: _registrationDeadline!,
+                        stateOfTender: _selectedState,
+                        // expectedStartTime: _expectedStartTime!,
+                        budget: enteredBudget,
                       );
-                      Navigator.pop(context);
+                      try {
+                        await TenderService.addTenders(newTender);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('تمت الإضافة بنجاح')),
+                        );
+                        Navigator.pop(context);
+                        // setState(() {
+                        //   tendersFuture = TenderService.fetchTenders();
+                        // });
+                      } catch (e, stackTrace) {
+                        log('خطأ في الاضافة : $e');
+                        log('Stack trace : $stackTrace');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('فشل في الإضافة :$e')),
+                        );
+                        Navigator.pop(context);
+                      }
+                      // widget.onAddTender(
+                      //   Tender(
+                      //     title: _titleController.text,
+                      //     descripe: _descripeController.text,
+                      //     location: _locationController.text,
+                      //     implementationPeriod: enteredImplementationPeriod,
+                      //     numberOfTechnicalConditions:
+                      //         enterednumberOfTechnicalConditions,
+                      //     registrationDeadline: _expectedStartTime!,
+                      //     stateOfTender: _selectedState,
+                      //     budget: enteredBudget,
+                      //     expectedStartTime: _expectedStartTime!,
+                      //   ),
+                      // );
                     }
                   },
                   child: Text('Save Tender'),
