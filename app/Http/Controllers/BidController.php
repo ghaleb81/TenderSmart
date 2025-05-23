@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Tender;
 use Illuminate\Http\Request;
 use App\Models\Bid;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
@@ -14,7 +16,7 @@ class BidController extends Controller
     $tender = Tender::with(['bids.contractor'])->findOrFail($tender_id);
 
     $bids_data = $tender->bids->map(function ($bid) {
-        return [
+        return [    
             "id" => $bid->id,
             "contractor_id" => $bid->contractor_id,
             "bid_amount" => $bid->bid_amount,
@@ -99,10 +101,60 @@ foreach ($bids_data as $bid) {
     return view('bids.index', compact('tender', 'sorted_bids'));
 }
 
-    public function store(Request $request, $tender_id)
+// public function index($tender_id)
+// {
+//     $tender = Tender::with(['bids.contractor'])->findOrFail($tender_id);
+
+//     // تحضير البيانات للعروض
+//     $bids_data = $tender->bids->map(function ($bid) {
+//         return [
+//             "id" => $bid->id,
+//             "contractor_id" => $bid->contractor_id,
+//             "bid_amount" => $bid->bid_amount,
+//             "budget" => $bid->tender->estimated_budget,
+//             "completion_time" => $bid->completion_time,
+//             "required_duration" => $bid->tender->execution_duration_days,
+//             "quality_certificates" => $bid->contractor->quality_certificates ?? 0,
+//             "projects_last_5_years" => $bid->contractor->projects_last_5_years ?? 0,
+//             "technical_matched_count" => $bid->technical_matched_count,
+//             "technical_requirements_count" => $bid->tender->technical_requirements_count
+//         ];
+//     })->values(); // مهم لتحويل من Collection إلى Array مرقّم
+
+//     // تحديد مسار البايثون والسكريبت
+//     $pythonPath = 'C:\Users\Lenovo\AppData\Local\Microsoft\WindowsApps\python.exe';
+//     $scriptPath = 'C:\\Users\\Lenovo\\Desktop\\course laravel\\TenderLaravel\\ai\\evaluate_tenders.py';
+
+//     // تشغيل السكربت
+//     $process = new Process([$pythonPath, $scriptPath]);
+//     $process->setInput(json_encode($bids_data));
+//     $process->run();
+
+//     if (!$process->isSuccessful()) {
+//         throw new ProcessFailedException($process);
+//     }
+
+//     $results = json_decode($process->getOutput(), true);
+
+//     // تحديث درجات العروض
+//     foreach ($results as $result) {
+//         Bid::where('contractor_id', $result['contractor_id'])
+//             ->where('tender_id', $tender_id)
+//             ->update(['final_bid_score' => $result['predicted_score']]);
+//     }
+
+//     // ترتيب العروض حسب الدرجة
+//     $sorted_bids = Bid::where('tender_id', $tender_id)
+//         ->orderByDesc('final_bid_score')
+//         ->get();
+
+//     return view('bids.index', compact('tender', 'sorted_bids'));
+// }
+
+
+    public function store(Request $request)
     {
         $validated = $request->validate([
-            'tender_id' => 'required|exists:tenders,id',
             'bid_amount' => 'required|numeric',
             'completion_time' => 'required|integer',
             'technical_proposal_pdf' => 'nullable|mimes:pdf|max:10240',
@@ -118,8 +170,7 @@ foreach ($bids_data as $bid) {
         $bid = new Bid();
         $bid->tender_id = $request->tender_id;
 
-        // هنا يمكن تحديد contractor_id بشكل ثابت أو من مصدر آخر
-        $bid->contractor_id = 1; // على سبيل المثال، يمكنك تعيين قيمة ثابتة أو استخراجها من مصدر آخر
+        $bid->contractor_id = $request->contarctor_id; 
 
         $bid->bid_amount = $request->bid_amount;
         $bid->completion_time = $request->completion_time;
@@ -131,4 +182,75 @@ foreach ($bids_data as $bid) {
 
         return redirect()->route('bid', $request->tender_id)->with('success', 'تم تقديم العرض بنجاح!');
     }
+
+
+
+     public function storeApi(Request $request)
+{
+    $validated = $request->validate([
+        'tender_id' => 'required|exists:tenders,id',
+        'contractor_id' => 'required|exists:contractors,id',
+        'bid_amount' => 'required|numeric',
+        'completion_time' => 'required|integer',
+        'technical_proposal_pdf' => 'nullable|mimes:pdf|max:10240',
+        'technical_matched_count' => 'required|integer',
+    ]);
+
+    $pdfPath = null;
+    if ($request->hasFile('technical_proposal_pdf')) {
+        $pdfPath = $request->file('technical_proposal_pdf')->store('bids/technical_proposals', 'public');
+    }
+
+    $bid = Bid::create([
+        'tender_id' => $request->tender()->id,
+'contractor_id' => $request->user()->contractor->id,
+        'bid_amount' => $request->bid_amount,
+        'completion_time' => $request->completion_time,
+        'technical_proposal_pdf' => $pdfPath,
+        'technical_matched_count' => $request->technical_matched_count,
+        'submission_date' => now(),
+    ]);
+
+    return response()->json([
+        'message' => 'تم تقديم العرض بنجاح!',
+        'data' => $bid
+    ], 201);
+}
+
+
+
+public function updateApi(Request $request, $id)
+{
+    $bid = Bid::findOrFail($id);
+
+    if ($request->user()->id !== $bid->contractor_id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    $request->validate([
+        'bid_amount' => 'nullable|numeric',
+        'completion_time' => 'nullable|integer',
+        'technical_proposal_pdf' => 'nullable|mimes:pdf|max:10240',
+        'technical_matched_count' => 'nullable|integer',
+    ]);
+
+    $data = $request->except('technical_proposal_pdf');
+
+    if ($request->hasFile('technical_proposal_pdf')) {
+        // حذف الملف القديم إذا موجود
+        if ($bid->technical_proposal_pdf) {
+            Storage::disk('public')->delete($bid->technical_proposal_pdf);
+        }
+        // تخزين الملف الجديد
+        $filePath = $request->file('technical_proposal_pdf')->store('bids/technical_proposals', 'public');
+        $data['technical_proposal_pdf'] = $filePath;
+    }
+
+    $bid->update($data);
+
+    return response()->json([
+        'message' => 'Bid updated successfully',
+        'data' => $bid
+    ], 200);
+}
 }
