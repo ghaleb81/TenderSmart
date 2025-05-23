@@ -15,6 +15,7 @@ class TenderListPage extends StatefulWidget {
   TenderListPage({
     super.key,
     // required this.tenders,
+    required this.tenders,
     required this.onDeleteTender,
     required this.bids,
     required this.addBid,
@@ -24,7 +25,7 @@ class TenderListPage extends StatefulWidget {
     required this.currentUserRole,
   });
 
-  // final List<Tender> tenders;
+  final List<Tender> tenders;
   final void Function(Tender tender) onDeleteTender;
   final void Function(Bid bid) addBid;
   List<Bid> bids;
@@ -400,193 +401,197 @@ class _TenderListPageState extends State<TenderListPage> {
         },
       ),
     );
-    // ListView.builder(
-    //   itemCount: widget.tenders.length,
-    //   itemBuilder: (context, index) {
-    //     final tender = widget.tenders[index];
-    //     return Expanded(
-    //       child: Card(
-    //         color: Colors.blue[200],
-    //         margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-    //         elevation: 4,
-    //         shape: RoundedRectangleBorder(
-    //           borderRadius: BorderRadius.circular(12),
-    //         ),
-    //         child: Padding(
-    //           padding: const EdgeInsets.all(16.0),
-    //           child: Column(
-    //             crossAxisAlignment: CrossAxisAlignment.center,
-    //             children: [
-    //               Row(
-    //                 mainAxisAlignment: MainAxisAlignment.center,
-    //                 children: [
-    //                   Text(
-    //                     '${tender.title}',
-    //                     style: TextStyle(
-    //                       fontSize: 18,
-    //                       fontWeight: FontWeight.bold,
-    //                     ),
-    //                   ),
-    //                   Text(
-    //                     ' _${index + 1}',
-    //                     style: TextStyle(
-    //                       fontSize: 18,
-    //                       fontWeight: FontWeight.bold,
-    //                     ),
-    //                   ),
-    //                   // Text(
-    //                   //   '${tender.title}_${index + 1}',
-    //                   //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    //                   // ),
-    //                 ],
-    //               ),
-    //               SizedBox(height: 8),
-    //               Padding(
-    //                 padding: EdgeInsets.all(12),
-    //                 child: Column(
+    //   ListView.builder(
+    //     itemCount: widget.tenders.length,
+    //     itemBuilder: (context, index) {
+    //       final tender = widget.tenders[index];
+    //       return Expanded(
+    //         child: Card(
+    //           color: Colors.blue[200],
+    //           margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+    //           elevation: 4,
+    //           shape: RoundedRectangleBorder(
+    //             borderRadius: BorderRadius.circular(12),
+    //           ),
+    //           child: Padding(
+    //             padding: const EdgeInsets.all(16.0),
+    //             child: Column(
+    //               crossAxisAlignment: CrossAxisAlignment.center,
+    //               children: [
+    //                 Row(
+    //                   mainAxisAlignment: MainAxisAlignment.center,
     //                   children: [
-    //                     Row(
-    //                       children: [
-    //                         Expanded(
-    //                           child: Text(
-    //                             textAlign: TextAlign.center,
-    //                             " ${tender.descripe}",
-    //                             softWrap: true,
-    //                             overflow: TextOverflow.visible,
-    //                           ),
-    //                         ),
-    //                       ],
+    //                     Text(
+    //                       '${tender.title}',
+    //                       style: TextStyle(
+    //                         fontSize: 18,
+    //                         fontWeight: FontWeight.bold,
+    //                       ),
     //                     ),
-    //                     SizedBox(height: 10),
-    //                     Row(
-    //                       mainAxisAlignment: MainAxisAlignment.center,
-    //                       children: [
-    //                         Text("${tender.stateOfTender.name}: الحالة"),
-    //                         Icon(Icons.announcement),
-    //                       ],
+    //                     Text(
+    //                       ' _${index + 1}',
+    //                       style: TextStyle(
+    //                         fontSize: 18,
+    //                         fontWeight: FontWeight.bold,
+    //                       ),
     //                     ),
-    //                     SizedBox(height: 10),
-    //                     Row(
-    //                       mainAxisAlignment: MainAxisAlignment.center,
-    //                       children: [
-    //                         Row(
-    //                           children: [
-    //                             ElevatedButton.icon(
-    //                               onPressed: () {
-    //                                 Navigator.push(
-    //                                   context,
-    //                                   MaterialPageRoute(
-    //                                     builder:
-    //                                         (context) => TenderDetails(
-    //                                           tender: widget.tenders[index],
-    //                                           bids: widget.bids,
-    //                                           addBid: widget.addBid,
-    //                                           currentUserRole:
-    //                                               widget.currentUserRole,
-    //                                         ),
-    //                                   ),
-    //                                 );
-    //                               },
-    //                               icon: Icon(Icons.details),
-    //                               label: Text('تفاصيل المناقصة'),
-    //                             ),
-    //                           ],
-    //                         ),
-    //                         SizedBox(width: 10),
-    //                         Row(
-    //                           children: [
-    //                             if (widget.currentUserRole == 'admin')
-    //                               ElevatedButton.icon(
-    //                                 onPressed: () {
-    //                                   showDialog(
-    //                                     context: context,
-    //                                     builder:
-    //                                         (ctx) => AlertDialog(
-    //                                           icon: Icon(Icons.warning),
-    //                                           title: Center(
-    //                                             child: Text(
-    //                                               'تحذير',
-    //                                               style: TextStyle(
-    //                                                 fontSize: 20,
-    //                                                 // backgroundColor: Colors.blue,
-    //                                               ),
-    //                                             ),
-    //                                           ),
-    //                                           content: Text(
-    //                                             'هل أنت متأكد من حذف المناقصة',
-    //                                             textAlign: TextAlign.center,
-    //                                           ),
-    //                                           actions: [
-    //                                             TextButton(
-    //                                               style: ButtonStyle(
-    //                                                 backgroundColor:
-    //                                                     WidgetStatePropertyAll(
-    //                                                       const Color.fromARGB(
-    //                                                         255,
-    //                                                         80,
-    //                                                         222,
-    //                                                         85,
-    //                                                       ),
-    //                                                     ),
-    //                                               ),
-    //                                               onPressed:
-    //                                                   () =>
-    //                                                       Navigator.pop(ctx),
-    //                                               child: Text(
-    //                                                 'لا',
-    //                                                 style: TextStyle(
-    //                                                   color: Colors.black,
-    //                                                 ),
-    //                                               ),
-    //                                             ),
-    //                                             TextButton(
-    //                                               style: ButtonStyle(
-    //                                                 backgroundColor:
-    //                                                     WidgetStatePropertyAll(
-    //                                                       const Color.fromARGB(
-    //                                                         255,
-    //                                                         254,
-    //                                                         91,
-    //                                                         80,
-    //                                                       ),
-    //                                                     ),
-    //                                               ),
-    //                                               onPressed: () {
-    //                                                 widget.onDeleteTender(
-    //                                                   tender,
-    //                                                 );
-    //                                                 Navigator.pop(ctx);
-    //                                               },
-    //                                               child: Text(
-    //                                                 'نعم',
-    //                                                 style: TextStyle(
-    //                                                   color: Colors.black,
-    //                                                 ),
-    //                                               ),
-    //                                             ),
-    //                                           ],
-    //                                         ),
-    //                                   );
-    //                                 },
-    //                                 icon: Icon(Icons.delete),
-    //                                 label: Text('حذف المناقصة'),
-    //                               )
-    //                             else
-    //                               SizedBox(),
-    //                           ],
-    //                         ),
-    //                       ],
-    //                     ),
+    //                     // Text(
+    //                     //   '${tender.title}_${index + 1}',
+    //                     //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    //                     // ),
     //                   ],
     //                 ),
-    //               ),
-    //             ],
+    //                 SizedBox(height: 8),
+    //                 Padding(
+    //                   padding: EdgeInsets.all(12),
+    //                   child: Column(
+    //                     children: [
+    //                       Row(
+    //                         children: [
+    //                           Expanded(
+    //                             child: Text(
+    //                               textAlign: TextAlign.center,
+    //                               " ${tender.descripe}",
+    //                               softWrap: true,
+    //                               overflow: TextOverflow.visible,
+    //                             ),
+    //                           ),
+    //                         ],
+    //                       ),
+    //                       SizedBox(height: 10),
+    //                       Row(
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         children: [
+    //                           Text("${tender.stateOfTender.name}: الحالة"),
+    //                           Icon(Icons.announcement),
+    //                         ],
+    //                       ),
+    //                       SizedBox(height: 10),
+    //                       Row(
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         children: [
+    //                           Row(
+    //                             children: [
+    //                               ElevatedButton.icon(
+    //                                 onPressed: () {
+    //                                   Navigator.push(
+    //                                     context,
+    //                                     MaterialPageRoute(
+    //                                       builder:
+    //                                           (context) => TenderDetails(
+    //                                             tender: widget.tenders[index],
+    //                                             bids: widget.bids,
+    //                                             addBid: widget.addBid,
+    //                                             currentUserRole:
+    //                                                 widget.currentUserRole,
+    //                                           ),
+    //                                     ),
+    //                                   );
+    //                                 },
+    //                                 icon: Icon(Icons.details),
+    //                                 label: Text('تفاصيل المناقصة'),
+    //                               ),
+    //                             ],
+    //                           ),
+    //                           SizedBox(width: 10),
+    //                           Row(
+    //                             children: [
+    //                               if (widget.currentUserRole == 'admin')
+    //                                 ElevatedButton.icon(
+    //                                   onPressed: () {
+    //                                     showDialog(
+    //                                       context: context,
+    //                                       builder:
+    //                                           (ctx) => AlertDialog(
+    //                                             icon: Icon(Icons.warning),
+    //                                             title: Center(
+    //                                               child: Text(
+    //                                                 'تحذير',
+    //                                                 style: TextStyle(
+    //                                                   fontSize: 20,
+    //                                                   // backgroundColor: Colors.blue,
+    //                                                 ),
+    //                                               ),
+    //                                             ),
+    //                                             content: Text(
+    //                                               'هل أنت متأكد من حذف المناقصة',
+    //                                               textAlign: TextAlign.center,
+    //                                             ),
+    //                                             actions: [
+    //                                               TextButton(
+    //                                                 style: ButtonStyle(
+    //                                                   backgroundColor:
+    //                                                       WidgetStatePropertyAll(
+    //                                                         const Color.fromARGB(
+    //                                                           255,
+    //                                                           80,
+    //                                                           222,
+    //                                                           85,
+    //                                                         ),
+    //                                                       ),
+    //                                                 ),
+    //                                                 onPressed:
+    //                                                     () =>
+    //                                                         Navigator.pop(ctx),
+    //                                                 child: Text(
+    //                                                   'لا',
+    //                                                   style: TextStyle(
+    //                                                     color: Colors.black,
+    //                                                   ),
+    //                                                 ),
+    //                                               ),
+    //                                               TextButton(
+    //                                                 style: ButtonStyle(
+    //                                                   backgroundColor:
+    //                                                       WidgetStatePropertyAll(
+    //                                                         const Color.fromARGB(
+    //                                                           255,
+    //                                                           254,
+    //                                                           91,
+    //                                                           80,
+    //                                                         ),
+    //                                                       ),
+    //                                                 ),
+    //                                                 onPressed: ()
+    //                                                  async {
+    //                                                   await TenderService.deleteTenders(
+    //                                                     tender.id,
+    //                                                   );
+    //                                                   // widget.onDeleteTender(
+    //                                                   //   tender,
+    //                                                   // );
+    //                                                   Navigator.pop(ctx);
+    //                                                 },
+    //                                                 child: Text(
+    //                                                   'نعم',
+    //                                                   style: TextStyle(
+    //                                                     color: Colors.black,
+    //                                                   ),
+    //                                                 ),
+    //                                               ),
+    //                                             ],
+    //                                           ),
+    //                                     );
+    //                                   },
+    //                                   icon: Icon(Icons.delete),
+    //                                   label: Text('حذف المناقصة'),
+    //                                 )
+    //                               else
+    //                                 SizedBox(),
+    //                             ],
+    //                           ),
+    //                         ],
+    //                       ),
+    //                     ],
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
     //           ),
     //         ),
-    //       ),
-    //     );
-    //   },
-    // ),
+    //       );
+    //     },
+    //   ),
     // );
   }
 }

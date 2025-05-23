@@ -135,6 +135,7 @@ class _TendersState extends State<Tenders> {
         Expanded(
           child: TenderListPage(
             // tenders: widget.currentTenders,
+            tenders: widget.currentTenders,
             onDeleteTender: _deleteTender,
             bids: widget.bids,
             addBid: widget.addBid,
