@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TenderController;
 use App\Http\Controllers\BidController;
 use App\Http\Controllers\ContractorController;
+use App\Http\Controllers\SavedTenderController;
 use App\Http\Controllers\UserController;
 
 Route::get('/user', function (Request $request) {
@@ -27,46 +28,53 @@ Route::put('updateTender/{id}',[TenderController::class,'updateApi']);
 
 Route::delete ('destroyTender/{id}',[TenderController::class,'destroyApi']); 
 
+//--------------------------------------For Tender --------------------------------------
 
 // Route::middleware('auth:sanctum')->group(function(){
 //     Route::prefix('Tender')->group(function(){
+//          Route::get ('/index',[TenderController::class,'indexApi']); 
+//          Route::post('/{id}/save',[SavedTenderController::class,'savetender']);
+//          Route::delete('/{id}/delete',[SavedTenderController::class,'deletetender']);
+//          Route::middleware('CheckUser')->group(function(){
+//               Route::get ('/show/{id}',[TenderController::class,'showApi']); 
 
-//         Route::get ('/show/{id}',[TenderController::class,'showApi']); 
+//               Route::post('/store', [TenderController::class,'storeApi']);
 
+//               Route::put('/update/{id}',[TenderController::class,'updateApi']); 
 
-//         Route::middleware('CheckUser')->group(function(){
-//             Route::post('/store', [TenderController::class,'storeApi']);
-//             Route::get ('/index',[TenderController::class,'indexApi']); 
-//             Route::put('/update/{id}',[TenderController::class,'updateApi']); 
-//             Route::delete ('destroy/{id}',[TenderController::class,'destroyApi']);
+//                Route::delete ('destroy/{id}',[TenderController::class,'destroyApi']);
 // }); 
 
 // });
-
-    // });
-
-
-
-
-
+// });
 // });
 
 
 
-//  تقديم عرض لمناقصة
 
-Route::post('/bids', [BidController::class, 'store']); // POST
+
+
+///------------------------------ for Bid --------------------------------------------------
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::prefix('bid')->group(function(){
         Route::post('/store', [BidController::class, 'storeApi']); // POST
-
+        Route::post('/update', [BidController::class, 'updateApi']); 
+                 
     });
 });
 
-//  إرسال معلومات المقاول
-Route::post('/storeContractore', [ContractorController::class, 'store']); // POST
 
-Route::get('/showContractor/{id}', [ContractorController::class, 'show']); 
+
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::prefix('contractor')->group(function(){
+        Route::post('/store', [ContractorController::class, 'store']); // POST
+
+        Route::get('/show/{id}', [ContractorController::class, 'show']); 
+        Route::get('/bids',[BidController::class,'previousbids']);
+    });
+});
+
 //  الحصول على نتيجة التقييم 
 Route::get('/bids/{id}/result', [BidController::class, 'result']);

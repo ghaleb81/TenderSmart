@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Contractor;
 use App\Models\Tender;
 use Illuminate\Http\Request;
 use App\Models\Bid;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
+use Illuminate\Support\Facades\Auth as SupportFacadesAuth;
+use Illuminate\Support\Facades\Auth as IlluminateSupportFacadesAuth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -152,7 +156,7 @@ foreach ($bids_data as $bid) {
 // }
 
 
-    public function store(Request $request)
+public function store(Request $request,$tender)
     {
         $validated = $request->validate([
             'bid_amount' => 'required|numeric',
@@ -168,16 +172,15 @@ foreach ($bids_data as $bid) {
         }
 
         $bid = new Bid();
-        $bid->tender_id = $request->tender_id;
+        $bid->tender_id = $tender;
 
-        $bid->contractor_id = $request->contarctor_id; 
+        $bid->contractor_id = 1; 
 
         $bid->bid_amount = $request->bid_amount;
         $bid->completion_time = $request->completion_time;
         $bid->technical_proposal_pdf = $pdfPath;
         $bid->technical_matched_count = $request->technical_matched_count;
       
-        $bid->submission_date = now();
         $bid->save();
 
         return redirect()->route('bid', $request->tender_id)->with('success', 'تم تقديم العرض بنجاح!');
@@ -185,9 +188,18 @@ foreach ($bids_data as $bid) {
 
 
 
-     public function storeApi(Request $request)
+public function storeApi(Request $request)
 {
-    $validated = $request->validate([
+      $user =$request->user();
+
+    
+    $hasProfile =$user->contractor()->exists();
+    if (!$hasProfile){
+        return response()->json(
+        ['message' => 'please fill your information'], 200);
+     }
+
+    $request->validate([
         'tender_id' => 'required|exists:tenders,id',
         'contractor_id' => 'required|exists:contractors,id',
         'bid_amount' => 'required|numeric',
@@ -202,13 +214,12 @@ foreach ($bids_data as $bid) {
     }
 
     $bid = Bid::create([
-        'tender_id' => $request->tender()->id,
+        'tender_id' => $request->tender_id,
 'contractor_id' => $request->user()->contractor->id,
         'bid_amount' => $request->bid_amount,
         'completion_time' => $request->completion_time,
         'technical_proposal_pdf' => $pdfPath,
         'technical_matched_count' => $request->technical_matched_count,
-        'submission_date' => now(),
     ]);
 
     return response()->json([
@@ -253,4 +264,19 @@ public function updateApi(Request $request, $id)
         'data' => $bid
     ], 200);
 }
+
+public function previousbids(Request $request){
+$user=$request->user();
+
+$contractor=$user->contractor;
+
+   if (!$contractor) {
+        return response()->json(['message' => 'لا يوجد لديك حساب مقاول'], 404);
+    }
+
+    $bids = $contractor->bids()->with('tender')->latest()->get();
+
+    return response()->json($bids);
+}
+
 }
