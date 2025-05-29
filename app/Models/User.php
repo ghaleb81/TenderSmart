@@ -48,4 +48,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function contractor(){
+        return
+        $this->hasOne(Contractor::class);
+    }
+
+    public function savedTenders(){
+        return 
+        $this->belongsToMany(Tender::class,'saved_tenders')->withTimestamps();
+    }
 }

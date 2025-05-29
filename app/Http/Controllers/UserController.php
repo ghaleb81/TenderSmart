@@ -26,6 +26,7 @@ $token = $user->createToken('auth_token')->plainTextToken;
     return response()->json([
         'access_token' => $token,
         'token_type' => 'Bearer',
+        'role'=>$request->user()->role,
     ], 201);    }
     
     public function login(Request $request){
@@ -43,6 +44,8 @@ $token=$user->createToken('auth_token')->plainTextToken;
  return response()->json([
         'access_token' => $token,
         'token_type' => 'Bearer',
+        'role'=>$request->user()->role,
+
     ]);
 // return response()->json([
 //         'message'=>'Token created',

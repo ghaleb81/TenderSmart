@@ -17,6 +17,7 @@ class CheckUser
     {
         if ($request->user()->role==='admin')
         return $next($request);
+    
         return response()->json(["message"=>"unauthorized"],401);
     }
 }
