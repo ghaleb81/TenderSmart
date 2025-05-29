@@ -19,11 +19,11 @@ class TenderController extends Controller
    public function indexApi(){
     $tenders=Tender::all();
     return response()->json([
-        'The tenders are:' =>$tenders ],200);
+        'tenders' =>$tenders ],200);
    }
     public function store(Request $request)
     {
-        $request->validate([
+        $request->validate([    
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string|max:255',

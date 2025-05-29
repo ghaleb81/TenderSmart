@@ -57,4 +57,17 @@ class ContractorController extends Controller
         // return redirect()->back()->with('success', 'تم حفظ بيانات المقاول بنجاح.');
         return response()->json(["message:"=>'Success']);
     }
+
+    public function checkProfile(Request $request)
+{
+    $user = $request->user();
+
+    $hasProfile = $user->contractor()->exists(); 
+    return response()->json([
+        'has_profile' => $hasProfile,
+    ], 200);
 }
+
+}
+
+

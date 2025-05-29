@@ -26,4 +26,9 @@ class Tender extends Model
         return 
         $this->hasMany(Bid::class); }
 
+    public function savedByUsers()
+{
+    return $this->belongsToMany(User::class, 'saved_tenders')->withTimestamps();
+}
+
 }

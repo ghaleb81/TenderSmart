@@ -16,4 +16,4 @@ Route::resource('bid',BidController::class);
 Route::get('tender/{tender_id}/bids', [BidController::class, 'index'])->name('bid');
 Route::get('/tenders/{tender}/evaluate', [BidController::class, 'index'])->name('tenders.evaluate');
 
-Route::get('/tenders/{tender}/bids', [BidController::class, 'store'])->name('bids.store');
+Route::post('/tenders/{tender}/bids', [BidController::class, 'store'])->name('bids.store');

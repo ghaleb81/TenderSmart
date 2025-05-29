@@ -39,14 +39,19 @@ for bid in bids_data:
     quality_score = min(10, 5 + (quality_certificate_count * 1) + (2 if years_of_experience > 5 else 0))
     technical_score = (technical_matched_count / technical_requirment_count) * 10
 
+    features = [[bid_amount, completion_time, technical_score, budget_adherence, quality_score, speed_score]]
+    scaled_features = scaler.transform(features)
+
     # التنبؤ بالدرجات
-    lr_pred = lr_model.predict([[bid_amount, completion_time, technical_score, budget_adherence, quality_score, speed_score]])
-    svm_pred = svm_model.predict([[bid_amount, completion_time, technical_score, budget_adherence, quality_score, speed_score]])
+    #lr_pred = lr_model.predict([[bid_amount, completion_time, technical_score, budget_adherence, quality_score, speed_score]])
+    #svm_pred = svm_model.predict([[bid_amount, completion_time, technical_score, budget_adherence, quality_score, speed_score]])
+    svm_pred = svm_model.predict(scaled_features)
+    lr_pred = lr_model.predict(scaled_features)
 
     # تخزين النتائج
     results.append({
         "contractor_id": bid['contractor_id'],
-        "predicted_score": lr_pred[0],  # يمكن استخدام أي نموذج تفضله (lr_pred أو svm_pred)
+        "predicted_score": svm_pred[0],  # يمكن استخدام أي نموذج تفضله (lr_pred أو svm_pred)
     })
 
 # إرسال النتائج مرة أخرى إلى Laravel بتنسيق JSON
