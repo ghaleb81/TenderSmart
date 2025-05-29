@@ -1,12 +1,18 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tendersmart/file_picker_text_field.dart';
 import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
+import 'package:tendersmart/services/bid_service.dart';
+import 'package:tendersmart/services/token_storage.dart';
 
 class AddBid extends StatefulWidget {
-  const AddBid({super.key, required this.addBid});
-  final void Function(Bid bid) addBid;
+  AddBid({super.key, this.addBid, required this.tenderId});
+  final void Function(Bid bid)? addBid;
+  final tenderId;
 
   @override
   State<AddBid> createState() => _AddBidState();
@@ -39,9 +45,11 @@ class _AddBidState extends State<AddBid> {
   //     Bid_Contractor.add(bid);
   //   });
   // }
+  File? _selectedTechnicalProposalPdf;
 
   @override
   void dispose() {
+    super.dispose();
     _bid_amountController.dispose();
     _completion_time_exceptedController.dispose();
     _technical_matched_countController.dispose();
@@ -99,7 +107,14 @@ class _AddBidState extends State<AddBid> {
                 controller: _technical_matched_countController,
                 maxLength: 50,
               ),
-              FilePickerTextField(),
+              FilePickerTextField(
+                onFilePicked: (file) {
+                  setState(() {
+                    _selectedTechnicalProposalPdf = file;
+                  });
+                },
+              ),
+
               // TextField(
               //   decoration: InputDecoration(
               //     label: Text(': ملف العرض الفني المقدم من المقاول'),
@@ -120,7 +135,7 @@ class _AddBidState extends State<AddBid> {
                   ),
                   SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       final double? enteredBidAmount = double.tryParse(
                         _bid_amountController.text,
                       );
@@ -139,7 +154,6 @@ class _AddBidState extends State<AddBid> {
                       final bool TechnicalMatchedCountIsInvalid =
                           enteredTechnicalMatchedCount == null ||
                           enteredTechnicalMatchedCount <= 0;
-                      //final snackBar = SnackBar(content: Text('Error'));
                       if (bidAmountIsInvalid ||
                           CompletionTimeExceptedIsInvalid ||
                           TechnicalMatchedCountIsInvalid) {
@@ -148,16 +162,11 @@ class _AddBidState extends State<AddBid> {
                           context: context,
                           builder:
                               (ctx) => AlertDialog(
-                                // title: Text('Invaled Input'),
-                                // backgroundColor: Colors.blue,
                                 icon: Icon(Icons.warning),
                                 title: Center(
                                   child: Text(
                                     'إدخال خاطئ',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      // backgroundColor: Colors.blue,
-                                    ),
+                                    style: TextStyle(fontSize: 20),
                                   ),
                                 ),
                                 content: Text(
@@ -177,29 +186,50 @@ class _AddBidState extends State<AddBid> {
                                 ],
                               ),
                         );
-                        // log(_titleController.text);
-                        // log(_amountController.text);
                       } else {
-                        widget.addBid(
-                          Bid(
-                            bidAmount: enteredBidAmount,
-                            completionTimeExcepted:
-                                enterdCompletionTimeExcepted,
-                            technicalMatchedCount: enteredTechnicalMatchedCount,
-                          ),
-                          // Tender(
-                          //   title: _titleController.text,
-                          //   descripe: _descripeController.text,
-                          //   location: _locationController.text,
-                          //   implementationPeriod: enteredImplementationPeriod,
-                          //   numberOfTechnicalConditions:
-                          //       enterednumberOfTechnicalConditions,
-                          //   registrationDeadline: _expectedStartTime!,
-                          //   stateOfTender: _selectedState,
-                          //   budget: enteredBidAmount,
-                          //   expectedStartTime: _expectedStartTime!,
-                          // ),
+                        final bid = Bid(
+                          contractorId:
+                              TokenStorage.getContractorId().toString(),
+                          tenderId: widget.tenderId,
+                          bidAmount: enteredBidAmount,
+                          completionTimeExcepted: enterdCompletionTimeExcepted,
+                          technicalMatchedCount: enteredTechnicalMatchedCount,
                         );
+                        try {
+                          await BidService.addBid(bid);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('تمت الإضافة بنجاح')),
+                          );
+                          Navigator.pop(context);
+                          // setState(() {
+                          //   tendersFuture = TenderService.fetchTenders();
+                          // });
+                        } catch (e, stackTrace) {
+                          log('خطأ في الاضافة : $e');
+                          log('Stack trace : $stackTrace');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('فشل في الإضافة :$e')),
+                          );
+                          Navigator.pop(context);
+                        }
+                        // BidService.addBid(
+                        //   bidAmount: ,
+                        //   completionTime: enterdCompletionTimeExcepted,
+                        //   technicalMatched: enteredTechnicalMatchedCount,
+                        //   // technicalProposalPdf: _selectedTechnicalProposalPdf,
+                        //   // token: TokenStorage.getToken().toString(),
+                        // );
+
+                        // widget.addBid(
+                        //   Bid(
+                        //     tenderId: widget.tenderId,
+                        //     bidAmount: enteredBidAmount,
+                        //     completionTimeExcepted:
+                        //         enterdCompletionTimeExcepted,
+                        //     technicalMatchedCount: enteredTechnicalMatchedCount,
+                        //     // contractorId:
+                        //   ),
+                        // );
                         Navigator.pop(context);
                       }
                     },

@@ -8,7 +8,7 @@ final dateFormat = DateFormat.yMd();
 enum StateOfTender { opened, closed, progress }
 
 class Tender {
-  final String id;
+  final String? id;
   final String title;
   final String descripe;
   final String location;
@@ -20,6 +20,7 @@ class Tender {
   final double budget; //الميزانية
 
   Tender({
+    this.id,
     required this.title,
     required this.descripe,
     required this.location,
@@ -29,9 +30,11 @@ class Tender {
     required this.stateOfTender,
     // required this.expectedStartTime,
     required this.budget,
-  }) : id = uuid.v4();
+  });
+  // : id = uuid.v4();
   factory Tender.fromJson(Map<String, dynamic> json) {
     return Tender(
+      id: json['id']?.toString(),
       title: json['title'] ?? '',
       descripe: json['description'] ?? '',
       location: json['location'] ?? '',

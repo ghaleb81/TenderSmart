@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tendersmart/mainScreen.dart';
 import 'package:tendersmart/models/Bid.dart';
+import 'package:tendersmart/tenders_list.dart';
 
 class BidList extends StatefulWidget {
-  BidList({super.key, required this.bids, required this.currentUserRole});
-  List<Bid> bids;
+  BidList({super.key, this.bids, required this.currentUserRole});
+  List<Bid>? bids;
   final String currentUserRole;
   @override
   State<BidList> createState() => _BidListState();
@@ -39,7 +41,8 @@ class _BidListState extends State<BidList> {
               leading: Icon(Icons.home),
               title: Text('الصفحة الرئيسية'),
               onTap: () {
-                Navigator.pop(context);
+                TenderListPage;
+                // Navigator.pop(context);
               },
             ),
             if (widget.currentUserRole == 'admin')
@@ -78,9 +81,9 @@ class _BidListState extends State<BidList> {
         ),
       ),
       body: ListView.builder(
-        itemCount: widget.bids.length,
+        itemCount: widget.bids!.length,
         itemBuilder: (context, index) {
-          final bid = widget.bids[index];
+          final bid = widget.bids![index];
           return Expanded(
             child: Card(
               color: Colors.blue[200],

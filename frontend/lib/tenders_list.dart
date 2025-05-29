@@ -7,6 +7,8 @@ import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
 import 'package:tendersmart/models/contractor.dart';
 import 'package:tendersmart/new_tender.dart';
+import 'package:tendersmart/services/auth_service.dart';
+import 'package:tendersmart/services/token_storage.dart';
 import 'package:tendersmart/tender_details.dart';
 import 'package:tendersmart/tenders.dart';
 import 'package:tendersmart/services/tender_service.dart';
@@ -17,8 +19,8 @@ class TenderListPage extends StatefulWidget {
     // required this.tenders,
     required this.tenders,
     required this.onDeleteTender,
-    required this.bids,
-    required this.addBid,
+    this.bids,
+    this.addBid,
     required this.switchScreenToTenders,
     required this.addContractor,
     required this.currentTenders,
@@ -27,8 +29,8 @@ class TenderListPage extends StatefulWidget {
 
   final List<Tender> tenders;
   final void Function(Tender tender) onDeleteTender;
-  final void Function(Bid bid) addBid;
-  List<Bid> bids;
+  final void Function(Bid bid)? addBid;
+  List<Bid>? bids;
   final void Function() switchScreenToTenders;
   final void Function(Contractor contractor) addContractor;
   final List<Tender> currentTenders;
@@ -39,12 +41,19 @@ class TenderListPage extends StatefulWidget {
 
 class _TenderListPageState extends State<TenderListPage> {
   final List colors = [Colors.lightGreen, Colors.redAccent];
+  String? role;
   late Future<List<Tender>> tendersFuture;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     tendersFuture = TenderService.fetchTenders();
+    loadUserRole();
+  }
+
+  void loadUserRole() async {
+    role = await TokenStorage.getRole();
+    // setState(() {});
   }
 
   void _addtender(Tender ten) {
@@ -53,8 +62,29 @@ class _TenderListPageState extends State<TenderListPage> {
     });
   }
 
+  void _logout(BuildContext context) async {
+    // 1. تسجيل الخروج من الـ backend وحذف التوكن
+    await AuthService_Login.logout();
+
+    // 2. إعادة التوجيه إلى صفحة تسجيل الدخول
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => LoginScreen(
+              switchScreenToTenders:
+                  widget
+                      .switchScreenToTenders, // مرر دالة وهمية إن لم تكن بحاجة لها الآن
+              addContractor: (contractor) {}, // نفس الشيء
+            ),
+      ),
+      (route) => false, // هذا يغلق كل الصفحات السابقة ويبدأ من جديد
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // final String? role = await TokenStorage.getRole();
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -72,7 +102,8 @@ class _TenderListPageState extends State<TenderListPage> {
         actions: [
           //Icon(Icons.add),
           // OutlinedButton.icon:currentUserRole=='admin'?
-          if (widget.currentUserRole == 'admin')
+          // if (widget.currentUserRole == 'admin')
+          if (role == 'admin')
             OutlinedButton.icon(
               label: Text('إضافة مناقصة'),
               onPressed: () {
@@ -112,22 +143,13 @@ class _TenderListPageState extends State<TenderListPage> {
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('الصفحة الرئيسية'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.people),
-              title: Text('قائمة الموردين'),
-              onTap:
-                  () => LoginScreen(
-                    switchScreenToTenders: widget.switchScreenToTenders,
-                    addContractor: widget.addContractor,
-                  ),
-            ),
+            // ListTile(
+            //   leading: Icon(Icons.home),
+            //   title: Text('الصفحة الرئيسية'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //   },
+            // ),
             ListTile(
               leading: Icon(Icons.person),
               title: Text('الملف الشخصي'),
@@ -135,14 +157,42 @@ class _TenderListPageState extends State<TenderListPage> {
                 Navigator.pop(context);
               },
             ),
+
+            if (role == 'admin')
+              ListTile(
+                leading: Icon(Icons.people),
+                title: Text('قائمة الموردين'),
+                onTap:
+                    () => LoginScreen(
+                      switchScreenToTenders: widget.switchScreenToTenders,
+                      addContractor: widget.addContractor,
+                    ),
+              )
+            else
+              Column(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.people),
+                    title: Text('قائمة العروض'),
+                    onTap: () => Navigator.pop(context),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.people),
+                    title: Text('قائمة المناقصات المحفوظة'),
+                    onTap: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+
+            // SizedBox(),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('تسجيل الخروج'),
-              onTap:
-                  () => LoginScreen(
-                    switchScreenToTenders: widget.switchScreenToTenders,
-                    addContractor: widget.addContractor,
-                  ),
+              onTap: () => _logout(context),
+              //  LoginScreen(
+              //   switchScreenToTenders: widget.switchScreenToTenders,
+              //   addContractor: widget.addContractor,
+              // ),
             ),
           ],
         ),
@@ -256,7 +306,8 @@ class _TenderListPageState extends State<TenderListPage> {
                                     SizedBox(width: 10),
                                     Row(
                                       children: [
-                                        if (widget.currentUserRole == 'admin')
+                                        // if (widget.currentUserRole == 'admin')
+                                        if (role == 'admin')
                                           ElevatedButton.icon(
                                             onPressed: () {
                                               showDialog(
@@ -317,54 +368,73 @@ class _TenderListPageState extends State<TenderListPage> {
                                                                 ),
                                                           ),
                                                           onPressed: () async {
-                                                            print('object');
-                                                            try {
-                                                              await TenderService.deleteTenders(
-                                                                tender.id,
-                                                              );
-                                                              ScaffoldMessenger.of(
-                                                                context,
-                                                              ).showSnackBar(
-                                                                SnackBar(
-                                                                  content: Text(
-                                                                    'تم الحذف بنجاح',
-                                                                  ),
-                                                                ),
-                                                              );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                              // setState(() {
-                                                              //   tendersFuture = TenderService.fetchTenders();
-                                                              // });
-                                                            } catch (
-                                                              e,
-                                                              stackTrace
-                                                            ) {
-                                                              log(
-                                                                'خطأ في الاضافة : $e',
-                                                              );
-                                                              log(
-                                                                'Stack trace : $stackTrace',
-                                                              );
-                                                              ScaffoldMessenger.of(
-                                                                context,
-                                                              ).showSnackBar(
-                                                                SnackBar(
-                                                                  content: Text(
-                                                                    'فشل في الإضافة :$e',
-                                                                  ),
-                                                                ),
-                                                              );
-                                                              Navigator.pop(
-                                                                context,
-                                                              );
-                                                            }
-                                                            // widget
-                                                            //     .onDeleteTender(
-                                                            //       tender,
-                                                            //     );
-                                                            Navigator.pop(ctx);
+                                                            print(
+                                                              'سيتم حذف المناقصة',
+                                                            );
+                                                            print(
+                                                              "ID : ${tender.id}",
+                                                            );
+                                                            await TenderService.deleteTenders(
+                                                              tender.id!,
+                                                            );
+                                                            print(
+                                                              'تم حذف المناقصة',
+                                                            );
+                                                            Navigator.pop(
+                                                              context,
+                                                            );
+                                                            TenderService.fetchTenders();
+
+                                                            // try {
+                                                            //   await TenderService.deleteTenders(
+                                                            //     // tenders[index]
+                                                            //     //     .id,
+                                                            //     tender.id
+                                                            //   );
+                                                            //   Navigator.pop(
+                                                            //     context,
+                                                            //   );
+                                                            //   ScaffoldMessenger.of(
+                                                            //     context,
+                                                            //   ).showSnackBar(
+                                                            //     SnackBar(
+                                                            //       content: Text(
+                                                            //         'تم الحذف بنجاح',
+                                                            //       ),
+                                                            //     ),
+                                                            //   );
+
+                                                            //   // setState(() {
+                                                            //   //   tendersFuture = TenderService.fetchTenders();
+                                                            //   // });
+                                                            // } catch (
+                                                            //   e,
+                                                            //   stackTrace
+                                                            // ) {
+                                                            //   log(
+                                                            //     'خطأ في الحذف : $e',
+                                                            //   );
+                                                            //   log(
+                                                            //     'Stack trace : $stackTrace',
+                                                            //   );
+                                                            //   ScaffoldMessenger.of(
+                                                            //     context,
+                                                            //   ).showSnackBar(
+                                                            //     SnackBar(
+                                                            //       content: Text(
+                                                            //         'فشل في الحذف :$e',
+                                                            //       ),
+                                                            //     ),
+                                                            //   );
+                                                            //   Navigator.pop(
+                                                            //     context,
+                                                            //   );
+                                                            // }
+                                                            // // widget
+                                                            // //     .onDeleteTender(
+                                                            // //       tender,
+                                                            // //     );
+                                                            // Navigator.pop(ctx);
                                                           },
                                                           child: Text(
                                                             'نعم',

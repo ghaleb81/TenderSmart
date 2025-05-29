@@ -1,23 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:tendersmart/add_bid.dart';
+import 'package:tendersmart/add_contractor.dart';
 import 'package:tendersmart/bid_list.dart';
 import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
+import 'package:tendersmart/services/contractor_service.dart';
+import 'package:tendersmart/services/token_storage.dart';
 import 'package:tendersmart/tenders.dart';
 import 'package:tendersmart/tenders_list.dart';
 
-class TenderDetails extends StatelessWidget {
+class TenderDetails extends StatefulWidget {
   TenderDetails({
     super.key,
     required this.tender,
-    required this.bids,
-    required this.addBid,
+    this.bids,
+    this.addBid,
     required this.currentUserRole,
   });
   final Tender tender;
-  List<Bid> bids;
-  final void Function(Bid bid) addBid;
+  List<Bid>? bids;
+  final void Function(Bid bid)? addBid;
   final String currentUserRole;
+
+  @override
+  State<TenderDetails> createState() => _TenderDetailsState();
+}
+
+class _TenderDetailsState extends State<TenderDetails> {
+  String? role;
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadUserRole();
+    // checkContractorInfo();
+  }
+
+  void loadUserRole() async {
+    role = await TokenStorage.getRole();
+  }
+
+  void checkContractorInfo() async {
+    try {
+      final contractor = await ContractorService.getContractorInfo();
+      if (contractor == null) {
+        // لا يوجد معلومات، انتقل لواجهة إضافة معلومات المقاول
+        // Navigator.pushReplacement(
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => AddContractor()),
+        );
+      } else {
+        // توجد معلومات، انتقل لواجهة إضافة العرض
+        // Navigator.pushReplacement(
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => AddBid(tenderId: widget.tender.id)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('حدث خطأ أثناء التحقق من بيانات المقاول')),
+      );
+    }
+  }
+
+  // void openAddBidPage(BuildContext context, String tenderId) async {
+  //   final contractorInfo = await ContractorService.getContractorInfo();
+
+  //   if (contractorInfo == null || contractorInfo.companyName == null) {
+  //     // لم يتم إدخال بيانات المقاول
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder:
+  //             (context) => AddContractor(
+  //               addContractor: (contractor) {
+  //                 // بعد الإضافة الناجحة للمقاول، يمكن فتح صفحة العرض
+  //                 Navigator.pushReplacement(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => AddBid(tenderId: tenderId),
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //       ),
+  //     );
+  //   } else {
+  //     // بيانات المقاول موجودة، افتح صفحة العرض مباشرة
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => AddBid(tenderId: tenderId)),
+  //     );
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +132,7 @@ class TenderDetails extends StatelessWidget {
                       // crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          '${tender.title}',
+                          '${widget.tender.title}',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -69,7 +147,7 @@ class TenderDetails extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Text("الموقع: ${tender.location}"),
+                                  Text("الموقع: ${widget.tender.location}"),
                                   Icon(Icons.location_city),
                                 ],
                               ),
@@ -84,7 +162,7 @@ class TenderDetails extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    " عدد الشروط الفنية: ${tender.numberOfTechnicalConditions}",
+                                    " عدد الشروط الفنية: ${widget.tender.numberOfTechnicalConditions}",
                                   ),
                                   Icon(Icons.functions),
                                 ],
@@ -93,7 +171,7 @@ class TenderDetails extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    "الموعد النهائي للتقديم: ${tender.registrationDeadline}",
+                                    "الموعد النهائي للتقديم: ${widget.tender.registrationDeadline}",
                                   ),
                                   Icon(Icons.functions),
                                 ],
@@ -102,7 +180,7 @@ class TenderDetails extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    " عدد أيام التنفيذ  : ${tender.implementationPeriod}",
+                                    " عدد أيام التنفيذ  : ${widget.tender.implementationPeriod}",
                                   ),
                                   Icon(Icons.summarize),
                                 ],
@@ -110,14 +188,16 @@ class TenderDetails extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Text(" الميزانية: ${tender.budget}"),
+                                  Text(" الميزانية: ${widget.tender.budget}"),
                                   Icon(Icons.money),
                                 ],
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Text("الحالة : ${tender.stateOfTender.name}"),
+                                  Text(
+                                    "الحالة : ${widget.tender.stateOfTender.name}",
+                                  ),
                                   Icon(Icons.announcement),
                                 ],
                               ),
@@ -125,7 +205,7 @@ class TenderDetails extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (currentUserRole == 'admin')
+                                  if (widget.currentUserRole == 'admin')
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.push(
@@ -133,9 +213,9 @@ class TenderDetails extends StatelessWidget {
                                           MaterialPageRoute(
                                             builder:
                                                 (context) => BidList(
-                                                  bids: bids,
+                                                  bids: widget.bids,
                                                   currentUserRole:
-                                                      currentUserRole,
+                                                      widget.currentUserRole,
                                                 ),
                                           ),
                                         );
@@ -156,46 +236,60 @@ class TenderDetails extends StatelessWidget {
               ),
               Text(
                 textAlign: TextAlign.center,
-                " ${tender.descripe}",
+                " ${widget.tender.descripe}",
                 softWrap: true,
                 overflow: TextOverflow.visible,
               ),
               SizedBox(height: 150),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddBid(addBid: addBid),
+              if (role == 'contractor')
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                          Colors.blue[200],
                         ),
-                      );
-                    },
-                    label: Text(
-                      'إضافة عرض',
-                      style: TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                      onPressed: () {
+                        checkContractorInfo();
+                        // final tenderId = widget.tender.id;
+                        // openAddBidPage(context, tenderId!);
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder:
+                        //         (context) => AddBid(
+                        //           tenderId: widget.tender.id,
+                        //           //addBid: widget.addBid,
+                        //         ),
+                        //   ),
+                        // );
+                      },
+                      label: Text(
+                        'إضافة عرض',
+                        style: TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                      icon: Icon(Icons.add),
                     ),
-                    icon: Icon(Icons.add),
-                  ),
-                  SizedBox(width: 20),
-                  ElevatedButton.icon(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.blue[200]),
+                    SizedBox(width: 20),
+                    ElevatedButton.icon(
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                          Colors.blue[200],
+                        ),
+                      ),
+                      onPressed: () {},
+                      label: Text(
+                        'حفظ المناقصة',
+                        style: TextStyle(fontSize: 15, color: Colors.black),
+                      ),
+                      icon: Icon(Icons.hearing_outlined),
                     ),
-                    onPressed: () {},
-                    label: Text(
-                      'حفظ المناقصة',
-                      style: TextStyle(fontSize: 15, color: Colors.black),
-                    ),
-                    icon: Icon(Icons.save),
-                  ),
-                ],
-              ),
+                  ],
+                )
+              else
+                SizedBox(),
             ],
           ),
         ),

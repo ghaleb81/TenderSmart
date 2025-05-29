@@ -17,6 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget? activeScreen;
   final List<Tender> _currentTenders = [
     Tender(
+      id: 'jj',
       title: 'إدارة مقصف كلية الهندسة المعلوماتية',
       descripe:
           'كلية المعلوماتية التابعة لجامعة الشام الخاصة بحاجة لاستثمار للمقصف بداخلها وادارة خدمة الطلاب على مدار دوام الكلية من الساعة 8 صباحاً حتى 3 عصراً',
@@ -29,6 +30,7 @@ class _MainScreenState extends State<MainScreen> {
       budget: 400000.33,
     ),
     Tender(
+      id: 'jj',
       title: 'إدارة المركز الطبي في جامعة الشام الخاصة',
       descripe:
           'جامعة الشام الخاصة بحاجة لاستثمار للمركز الطبي بداخلها وادارة خدمة المرضى على مدار دوام الكلية من الساعة 8 صباحاً حتى 4 عصراً',
@@ -41,6 +43,7 @@ class _MainScreenState extends State<MainScreen> {
       budget: 33333.222,
     ),
     Tender(
+      id: 'xx',
       title: 'إدارة مكتبة في كلية الطب البشري',
       descripe: 'descripe',
       location: 'ريف دمشق_التل',
@@ -52,6 +55,7 @@ class _MainScreenState extends State<MainScreen> {
       budget: 2220022,
     ),
     Tender(
+      id: 'bb',
       title: 'توريد مستلزمات طبية لكلية طب الأسنان',
       descripe: 'descripe',
       location: 'دمشق_المزرعة',
@@ -63,11 +67,11 @@ class _MainScreenState extends State<MainScreen> {
       budget: 3333333,
     ),
   ];
-  final List<Bid> bidContractor = [
-    Bid(bidAmount: 3222, completionTimeExcepted: 2, technicalMatchedCount: 5),
-    Bid(bidAmount: 444, completionTimeExcepted: 3, technicalMatchedCount: 3),
-    Bid(bidAmount: 111, completionTimeExcepted: 4, technicalMatchedCount: 9),
-  ];
+  // final List<Bid> bidContractor = [
+  //   Bid(bidAmount: 3222, completionTimeExcepted: 2, technicalMatchedCount: 5),
+  //   Bid(bidAmount: 444, completionTimeExcepted: 3, technicalMatchedCount: 3),
+  //   Bid(bidAmount: 111, completionTimeExcepted: 4, technicalMatchedCount: 9),
+  // ];
   final List<Contractor> contractorList = [
     Contractor(
       companyName: 'It Company',
@@ -119,11 +123,11 @@ class _MainScreenState extends State<MainScreen> {
     ),
   ];
   String currentUserRole = 'admin';
-  void _addBid(Bid bid) {
-    setState(() {
-      bidContractor.add(bid);
-    });
-  }
+  // void _addBid(Bid bid) {
+  //   setState(() {
+  //     bidContractor.add(bid);
+  //   });
+  // }
 
   void _addContractor(Contractor contractor) {
     setState(() {
@@ -144,8 +148,8 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       activeScreen = Tenders(
         currentTenders: _currentTenders,
-        bids: bidContractor,
-        addBid: _addBid,
+        // bids: bidContractor,
+        // addBid: _addBid,
         addContractor: _addContractor,
         switchScreenToTenders: switchScreenToTenders,
         currentUserRole: currentUserRole,
@@ -157,8 +161,8 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       activeScreen = TenderDetails(
         tender: _currentTenders[0],
-        bids: bidContractor,
-        addBid: _addBid,
+        // bids: bidContractor,
+        // addBid: _addBid,
         currentUserRole: currentUserRole,
       );
     });

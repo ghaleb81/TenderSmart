@@ -147,8 +147,13 @@ class _NewTenderState extends State<NewTender> {
                           final DateTime? pickedDate = await showDatePicker(
                             context: context,
                             firstDate: firstDate,
-                            lastDate: now,
-                            // initialDate: now,
+                            // lastDate: now,
+                            lastDate: DateTime(
+                              now.year + 1,
+                              now.month,
+                              now.day,
+                            ),
+                            // initialDate: DateTime(now.year+1,now.month,now.day),
                           );
                           setState(() {
                             _registrationDeadline = pickedDate;
@@ -284,6 +289,7 @@ class _NewTenderState extends State<NewTender> {
                           SnackBar(content: Text('تمت الإضافة بنجاح')),
                         );
                         Navigator.pop(context);
+                        tendersFuture;
                         // setState(() {
                         //   tendersFuture = TenderService.fetchTenders();
                         // });
