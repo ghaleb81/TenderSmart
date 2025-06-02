@@ -5,6 +5,7 @@ import 'package:tendersmart/bid_list.dart';
 import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
 import 'package:tendersmart/services/contractor_service.dart';
+import 'package:tendersmart/services/tender_service.dart';
 import 'package:tendersmart/services/token_storage.dart';
 import 'package:tendersmart/tenders.dart';
 import 'package:tendersmart/tenders_list.dart';
@@ -15,12 +16,13 @@ class TenderDetails extends StatefulWidget {
     required this.tender,
     this.bids,
     this.addBid,
-    required this.currentUserRole,
+    this.currentUserRole,
+    // this.isFavorite,
   });
   final Tender tender;
   List<Bid>? bids;
   final void Function(Bid bid)? addBid;
-  final String currentUserRole;
+  final String? currentUserRole;
 
   @override
   State<TenderDetails> createState() => _TenderDetailsState();
@@ -28,16 +30,30 @@ class TenderDetails extends StatefulWidget {
 
 class _TenderDetailsState extends State<TenderDetails> {
   String? role;
+  bool isFavorite = false;
 
   void initState() {
     // TODO: implement initState
     super.initState();
     loadUserRole();
     // checkContractorInfo();
+    checkIfFavorite();
   }
 
   void loadUserRole() async {
     role = await TokenStorage.getRole();
+  }
+
+  // التحقق إذا كانت المناقصة محفوظة
+  void checkIfFavorite() async {
+    try {
+      List<Tender> savedTenders = await TenderService.fetchSavedTenders();
+      setState(() {
+        isFavorite = savedTenders.any((t) => t.id == widget.tender.id);
+      });
+    } catch (e) {
+      print('حدث خطأ أثناء التحقق من المناقصات المحفوظة: $e');
+    }
   }
 
   void checkContractorInfo() async {
@@ -65,6 +81,26 @@ class _TenderDetailsState extends State<TenderDetails> {
     }
   }
 
+  void toggleFavorite() async {
+    try {
+      if (isFavorite) {
+        await TenderService.cancellationTenders(widget.tender.id!);
+      } else {
+        await TenderService.saveTenders(
+          widget.tender,
+          widget.tender.id.toString(),
+        );
+      }
+      // تحديث الحالة بعد التغيير
+      setState(() {
+        isFavorite = !isFavorite;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('حدث خطأ أثناء تحديث حالة المفضلة')),
+      );
+    }
+  }
   // void openAddBidPage(BuildContext context, String tenderId) async {
   //   final contractorInfo = await ContractorService.getContractorInfo();
 
@@ -148,7 +184,7 @@ class _TenderDetailsState extends State<TenderDetails> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text("الموقع: ${widget.tender.location}"),
-                                  Icon(Icons.location_city),
+                                  Icon(Icons.location_on),
                                 ],
                               ),
                               // Row(
@@ -164,7 +200,7 @@ class _TenderDetailsState extends State<TenderDetails> {
                                   Text(
                                     " عدد الشروط الفنية: ${widget.tender.numberOfTechnicalConditions}",
                                   ),
-                                  Icon(Icons.functions),
+                                  Icon(Icons.format_list_numbered),
                                 ],
                               ),
                               Row(
@@ -173,7 +209,7 @@ class _TenderDetailsState extends State<TenderDetails> {
                                   Text(
                                     "الموعد النهائي للتقديم: ${widget.tender.registrationDeadline}",
                                   ),
-                                  Icon(Icons.functions),
+                                  Icon(Icons.format_list_numbered),
                                 ],
                               ),
                               Row(
@@ -182,14 +218,14 @@ class _TenderDetailsState extends State<TenderDetails> {
                                   Text(
                                     " عدد أيام التنفيذ  : ${widget.tender.implementationPeriod}",
                                   ),
-                                  Icon(Icons.summarize),
+                                  Icon(Icons.calendar_today),
                                 ],
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(" الميزانية: ${widget.tender.budget}"),
-                                  Icon(Icons.money),
+                                  Icon(Icons.attach_money),
                                 ],
                               ),
                               Row(
@@ -198,7 +234,7 @@ class _TenderDetailsState extends State<TenderDetails> {
                                   Text(
                                     "الحالة : ${widget.tender.stateOfTender.name}",
                                   ),
-                                  Icon(Icons.announcement),
+                                  Icon(Icons.assignment_turned_in),
                                 ],
                               ),
                               SizedBox(height: 10),
@@ -215,7 +251,7 @@ class _TenderDetailsState extends State<TenderDetails> {
                                                 (context) => BidList(
                                                   bids: widget.bids,
                                                   currentUserRole:
-                                                      widget.currentUserRole,
+                                                      widget.currentUserRole!,
                                                 ),
                                           ),
                                         );
@@ -273,18 +309,32 @@ class _TenderDetailsState extends State<TenderDetails> {
                       icon: Icon(Icons.add),
                     ),
                     SizedBox(width: 20),
-                    ElevatedButton.icon(
+                    IconButton(
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(
                           Colors.blue[200],
                         ),
                       ),
-                      onPressed: () {},
-                      label: Text(
-                        'حفظ المناقصة',
-                        style: TextStyle(fontSize: 15, color: Colors.black),
+                      onPressed: () {
+                        toggleFavorite();
+                        // isFavorite
+                        //     ? await TenderService.saveTenders(
+                        //       widget.tender,
+                        //       widget.tender.id.toString(),
+                        //     )
+                        //     : await TenderService.cancellationTenders(
+                        //       widget.tender.id!,
+                        //     );
+                      },
+                      // label: Text(
+                      //   'حفظ المناقصة',
+                      //   style: TextStyle(fontSize: 15, color: Colors.black),
+                      // ),
+                      icon: Icon(
+                        //Icon(Icons.favorite_border),
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? Colors.red : Colors.grey,
                       ),
-                      icon: Icon(Icons.hearing_outlined),
                     ),
                   ],
                 )

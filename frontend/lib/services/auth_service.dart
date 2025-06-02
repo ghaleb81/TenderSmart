@@ -9,7 +9,8 @@ class AuthService_Login {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse('http://192.168.214.174:8000/api/login'),
+      // Uri.parse('http://192.168.214.174:8000/api/login'),
+      Uri.parse('http://127.0.0.1:8000/api/login'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'email': email, 'password': password}),
     );
@@ -36,7 +37,8 @@ class AuthService_Login {
     required String password,
     required String phone,
   }) async {
-    final url = Uri.parse('http://192.168.214.174:8000/api/register');
+    final url = Uri.parse('http://127.0.0.1:8000/api/register');
+    // final url = Uri.parse('http://192.168.214.174:8000/api/register');
 
     final response = await http.post(
       url,
@@ -69,7 +71,8 @@ class AuthService_Login {
     if (token == null) return;
 
     final response = await http.post(
-      Uri.parse('http://192.168.214.174:8000/api/logout'),
+      Uri.parse('http://127.0.0.1:8000/api/logout'),
+      // Uri.parse('http://192.168.214.174:8000/api/logout'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

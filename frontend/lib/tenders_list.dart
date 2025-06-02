@@ -7,6 +7,7 @@ import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
 import 'package:tendersmart/models/contractor.dart';
 import 'package:tendersmart/new_tender.dart';
+import 'package:tendersmart/saved_tender_list.dart';
 import 'package:tendersmart/services/auth_service.dart';
 import 'package:tendersmart/services/token_storage.dart';
 import 'package:tendersmart/tender_details.dart';
@@ -24,7 +25,7 @@ class TenderListPage extends StatefulWidget {
     required this.switchScreenToTenders,
     required this.addContractor,
     required this.currentTenders,
-    required this.currentUserRole,
+    this.currentUserRole,
   });
 
   final List<Tender> tenders;
@@ -34,7 +35,7 @@ class TenderListPage extends StatefulWidget {
   final void Function() switchScreenToTenders;
   final void Function(Contractor contractor) addContractor;
   final List<Tender> currentTenders;
-  final String currentUserRole;
+  final String? currentUserRole;
   @override
   State<TenderListPage> createState() => _TenderListPageState();
 }
@@ -179,7 +180,7 @@ class _TenderListPageState extends State<TenderListPage> {
                   ListTile(
                     leading: Icon(Icons.people),
                     title: Text('قائمة المناقصات المحفوظة'),
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => SavedTenderList(),
                   ),
                 ],
               ),
@@ -289,11 +290,12 @@ class _TenderListPageState extends State<TenderListPage> {
                                                 builder:
                                                     (context) => TenderDetails(
                                                       tender: tenders[index],
+                                                      // isFavorite: false,
                                                       bids: widget.bids,
                                                       addBid: widget.addBid,
                                                       currentUserRole:
                                                           widget
-                                                              .currentUserRole,
+                                                              .currentUserRole!,
                                                     ),
                                               ),
                                             );

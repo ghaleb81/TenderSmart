@@ -33,7 +33,7 @@ class TenderApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const SplashScreen(),
+        '/': (context) => SplashScreen(),
         '/login': (context) => MainScreen(),
       },
     );

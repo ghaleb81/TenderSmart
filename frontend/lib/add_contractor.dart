@@ -398,106 +398,282 @@ class ContractorInformation extends StatefulWidget {
 }
 
 class _ContractorInformationState extends State<ContractorInformation> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  void _submit() async {
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    String name = _nameController.text;
-    String phone = _phoneController.text;
+  // Controllers لتخزين القيم
+  final fullNameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final mobileController = TextEditingController();
+  bool isChecked = false;
 
-    if (email.isEmpty || password.isEmpty || name.isEmpty || phone.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('يرجى ملء جميع الحقول')));
-      return;
-    }
+  @override
+  void dispose() {
+    // إفراغ الـ Controllers عند إغلاق الصفحة
+    fullNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    mobileController.dispose();
+    super.dispose();
+  }
 
-    bool success = await AuthService_Login.register(
-      name: name,
-      phone: phone,
-      email: email,
-      password: password,
+  void onContinuePressed() {
+    final fullName = fullNameController.text;
+    final email = emailController.text;
+    final password = passwordController.text;
+    final confirmPassword = confirmPasswordController.text;
+    final mobile = mobileController.text;
+
+    // هنا يمكنك طباعة أو إرسال البيانات إلى الباكند
+    print('Full Name: $fullName');
+    print('Email: $email');
+    print('Password: $password');
+    print('Confirm Password: $confirmPassword');
+    print('Mobile: $mobile');
+    print('Terms Accepted: $isChecked');
+
+    // تنقل إلى شاشة التحقق
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CodeVerificationScreen()),
     );
-
-    if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('تم التسجيل بنجاح')));
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('فشل التسجيل')));
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Registration')),
       body: SingleChildScrollView(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [Colors.blue, Colors.indigo]),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  label: Text(': الإسم', textAlign: TextAlign.center),
-                ),
-                keyboardType: TextInputType.name,
-                controller: _nameController,
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  label: Text(':  رقم الهاتف', textAlign: TextAlign.center),
-                ),
-                keyboardType: TextInputType.phone,
-                controller: _phoneController,
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  label: Text(
-                    ': البريد الإلتروني',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                controller: _emailController,
-              ),
-              TextField(
-                textAlign: TextAlign.end,
-                decoration: InputDecoration(label: Text(': كلمة المرور')),
-                // keyboardType: TextInputType.visiblePassword,
-                obscureText: true,
-                controller: _passwordController,
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+        child: Column(
+          children: [
+            // رأس الصفحة مع صورة
+            Image.asset(
+              'images/image_1.png',
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _submit();
-                      // Navigator.pop(context);
-                    },
-                    child: Text('Save'),
+                  TextField(
+                    controller: fullNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Full Name',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email ID',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Confirm Password',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: mobileController,
+                    decoration: const InputDecoration(
+                      labelText: 'Mobile No.',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: isChecked,
+                        onChanged: (v) {
+                          setState(() {
+                            isChecked = v ?? false;
+                          });
+                        },
+                      ),
+                      const Expanded(
+                        child: Text('I agree to Terms and Conditions'),
+                      ),
+                    ],
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('Cancel'),
+                    onPressed: onContinuePressed,
+                    child: const Text('CONTINUE'),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// final _emailController = TextEditingController();
+// final _passwordController = TextEditingController();
+// final _nameController = TextEditingController();
+// final _phoneController = TextEditingController();
+// void _submit() async {
+//   String email = _emailController.text;
+//   String password = _passwordController.text;
+//   String name = _nameController.text;
+//   String phone = _phoneController.text;
+
+//   if (email.isEmpty || password.isEmpty || name.isEmpty || phone.isEmpty) {
+//     ScaffoldMessenger.of(
+//       context,
+//     ).showSnackBar(SnackBar(content: Text('يرجى ملء جميع الحقول')));
+//     return;
+//   }
+
+//   bool success = await AuthService_Login.register(
+//     name: name,
+//     phone: phone,
+//     email: email,
+//     password: password,
+//   );
+
+//   if (success) {
+//     ScaffoldMessenger.of(
+//       context,
+//     ).showSnackBar(SnackBar(content: Text('تم التسجيل بنجاح')));
+//     Navigator.pop(context);
+//   } else {
+//     ScaffoldMessenger.of(
+//       context,
+//     ).showSnackBar(SnackBar(content: Text('فشل التسجيل')));
+//   }
+// }
+
+// @override
+// Widget build(BuildContext context) {
+//   return Scaffold(
+//     body: SingleChildScrollView(
+//       child: Container(
+//         decoration: BoxDecoration(
+//           gradient: LinearGradient(colors: [Colors.blue, Colors.indigo]),
+//         ),
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           crossAxisAlignment: CrossAxisAlignment.end,
+//           children: [
+//             TextField(
+//               decoration: InputDecoration(
+//                 label: Text(': الإسم', textAlign: TextAlign.center),
+//               ),
+//               keyboardType: TextInputType.name,
+//               controller: _nameController,
+//             ),
+//             TextField(
+//               decoration: InputDecoration(
+//                 label: Text(':  رقم الهاتف', textAlign: TextAlign.center),
+//               ),
+//               keyboardType: TextInputType.phone,
+//               controller: _phoneController,
+//             ),
+//             TextField(
+//               decoration: InputDecoration(
+//                 label: Text(
+//                   ': البريد الإلتروني',
+//                   textAlign: TextAlign.center,
+//                 ),
+//               ),
+//               keyboardType: TextInputType.emailAddress,
+//               controller: _emailController,
+//             ),
+//             TextField(
+//               textAlign: TextAlign.end,
+//               decoration: InputDecoration(label: Text(': كلمة المرور')),
+//               // keyboardType: TextInputType.visiblePassword,
+//               obscureText: true,
+//               controller: _passwordController,
+//             ),
+//             SizedBox(height: 10),
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.end,
+//               children: [
+//                 ElevatedButton(
+//                   onPressed: () {
+//                     _submit();
+//                     // Navigator.pop(context);
+//                   },
+//                   child: Text('Save'),
+//                 ),
+//                 ElevatedButton(
+//                   onPressed: () {
+//                     Navigator.pop(context);
+//                   },
+//                   child: Text('Cancel'),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//     ),
+//   );
+// }
+//}
+class CodeVerificationScreen extends StatelessWidget {
+  const CodeVerificationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final codeController = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Verify Code')),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/images/tender_smart_header.png',
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 20),
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('Enter the verification code sent to your email'),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                controller: codeController,
+                decoration: const InputDecoration(
+                  labelText: 'Verification Code',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final code = codeController.text;
+                print('Verification Code: $code');
+              },
+              child: const Text('VERIFY Code'),
+            ),
+          ],
         ),
       ),
     );
