@@ -6,9 +6,13 @@ import 'package:tendersmart/models/Tender.dart';
 import 'package:tendersmart/services/tender_service.dart';
 
 class NewTender extends StatefulWidget {
-  const NewTender({super.key, required this.onAddTender});
+  NewTender({
+    super.key,
+    required this.onAddTender,
+    required this.tendersFuture,
+  });
   final void Function(Tender tender) onAddTender;
-
+  Future<List<Tender>> tendersFuture;
   @override
   State<NewTender> createState() => _NewTenderState();
 }
@@ -24,7 +28,6 @@ class _NewTenderState extends State<NewTender> {
   DateTime? _expectedStartTime;
   DateTime? _registrationDeadline;
   StateOfTender _selectedState = StateOfTender.opened;
-  late Future<List<Tender>> tendersFuture;
 
   @override
   void dispose() {
@@ -288,10 +291,11 @@ class _NewTenderState extends State<NewTender> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('تمت الإضافة بنجاح')),
                         );
-                        Navigator.pop(context);
-                        tendersFuture;
+                        // Navigator.pop(context);
+                        // tendersFuture;
+                        // tendersFuture = TenderService.fetchTenders();
                         // setState(() {
-                        //   tendersFuture = TenderService.fetchTenders();
+                        //   tendersFuture; //= TenderService.fetchTenders();
                         // });
                       } catch (e, stackTrace) {
                         log('خطأ في الاضافة : $e');
@@ -299,8 +303,12 @@ class _NewTenderState extends State<NewTender> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('فشل في الإضافة :$e')),
                         );
-                        Navigator.pop(context);
                       }
+                      Navigator.pop(context);
+                      // setState(()  {
+                      //    widget
+                      //       .tendersFuture; //=await TenderService.fetchTenders();
+                      // });
                       // widget.onAddTender(
                       //   Tender(
                       //     title: _titleController.text,

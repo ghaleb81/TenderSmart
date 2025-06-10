@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:http/http.dart' as http;
 import 'package:tendersmart/models/Tender.dart';
 import 'dart:convert';
+import 'package:tendersmart/services/token_storage.dart';
 
 class TenderService {
+  static final ip = TokenStorage.getIp();
   static Future<List<Tender>> fetchTenders() async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/indexApi'),
+      Uri.parse('http://$ip:8000/api/indexApi'),
       // Uri.parse('http://192.168.214.174:8000/api/indexApi'),
     );
     if (response.statusCode == 200) {
@@ -16,42 +20,13 @@ class TenderService {
       throw Exception('فشل في تحميل البيانات');
     }
   }
-  // static Future<List<Tender>> fetchTenders() async {
-  //   final response = await http.get(
-  //     Uri.parse('http://192.168.64.174:8000/api/indexApi'),
-  //   );
-  //   // print('Response: ${response.body}');
-  //   if (response.statusCode == 200) {
-  //     // List<dynamic> body = jsonDecode(response.body);
-  //     // final Map<String, dynamic> json = jsonDecode(response.body);
-  //     final List<dynamic> body = jsonDecode(response.body);
-  //     // final List<dynamic> body = json['data'];
-
-  //     return body.map((json) => Tender.fromJson(json)).toList();
-  //   } else {
-  //     throw Exception('فشل في تحميل البيانات');
-  //   }
-  // }
 
   static Future<void> addTenders(Tender tender) async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/storeTender'),
+      Uri.parse('http://$ip:8000/api/storeTender'),
       // Uri.parse('http://192.168.214.174:8000/api/storeTender'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode(
-        tender.toJson(),
-        //   {
-        //   'title': tender.title,
-        //   'description': tender.descripe,
-        //   'location': tender.location,
-        //   'execution_duration_days': tender.implementationPeriod,
-        //   'technical_requirements_count': tender.numberOfTechnicalConditions,
-        //   'submission_deadline': tender.registrationDeadline.toIso8601String(),
-        //   'status': tender.stateOfTender.name,
-        //   // 'expectedStartTime': tender.expectedStartTime.toIso8601String(),
-        //   'estimated_budget': tender.budget,
-        // }
-      ),
+      body: json.encode(tender.toJson()),
     );
     if (response.statusCode != 201) {
       throw Exception('فشل في إضافة المناقصة');
@@ -60,7 +35,7 @@ class TenderService {
   }
 
   static Future<void> deleteTenders(String id) async {
-    final String baseUrl = 'http://127.0.0.1:8000/api/destroyTender/$id';
+    final String baseUrl = 'http://$ip:8000/api/destroyTender/$id';
     // final String baseUrl = 'http://192.168.214.174:8000/api/destroyTender/$id';
     // final url = "$baseUrl/$tender";
     try {
@@ -80,7 +55,7 @@ class TenderService {
 
   static Future<List<Tender>> fetchSavedTenders() async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/saved'),
+      Uri.parse('http://${ip}:8000/api/saved'),
       // Uri.parse('http://192.168.214.174:8000/api/indexApi'),
     );
     if (response.statusCode == 200) {
@@ -88,16 +63,43 @@ class TenderService {
       final List<dynamic> body = json['tenders'];
       return body.map((json) => Tender.fromJson(json)).toList();
     } else {
-      throw Exception('فشل في تحميل البيانات');
+      throw Exception('فشل في تحميل المناقصات المحفوظة');
     }
   }
+  // static Future<List<Tender>> fetchSavedTenders() async {
+  //   final response = await http.get(Uri.parse('http://$ip:8000/api/saved'));
+  //   log('${response.body}');
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body) as List;
+  //     return data.map((e) => Tender.fromJson(e)).toList();
+  //   } else {
+  //     throw Exception('فشل في تحميل المناقصات المحفوظة');
+  //   }
+  // }
 
-  static Future<void> saveTenders(Tender tender, String id) async {
+  static Future<void> saveTenders(Tender tender) async {
+    final userId = await TokenStorage.getUserrId();
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/$id/save'),
+      Uri.parse('http://$ip:8000/api/${tender.id}/save'),
       // Uri.parse('http://192.168.214.174:8000/api/storeTender'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode(tender.toJson()),
+      body: json.encode(
+        {
+          // 'id': tender.id,
+          // 'title': tender.title,
+          // 'description': tender.descripe,
+          // 'location': tender.location,
+          // 'execution_duration_days': tender.implementationPeriod,
+          // 'technical_requirements_count': tender.numberOfTechnicalConditions,
+          // 'submission_deadline': tender.registrationDeadline.toIso8601String(),
+          // 'status': tender.stateOfTender.name,
+          // // 'expectedStartTime': tender.expectedStartTime.toIso8601String(),
+          // 'estimated_budget': tender.budget,
+          'tender_id': tender.id.toString(),
+          // 'user_id': userId,
+        },
+        // tender.toJson()
+      ),
     );
     if (response.statusCode != 201) {
       throw Exception('فشل في إضافة المناقصة');
@@ -106,7 +108,7 @@ class TenderService {
   }
 
   static Future<void> cancellationTenders(String id) async {
-    final String baseUrl = 'http://127.0.0.1:8000/api/$id/delete';
+    final String baseUrl = 'http://$ip:8000/api/$id/delete';
     // final String baseUrl = 'http://192.168.214.174:8000/api/destroyTender/$id';
     // final url = "$baseUrl/$tender";
     try {

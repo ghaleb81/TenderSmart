@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:tendersmart/add_contractor.dart';
 import 'package:tendersmart/models/contractor.dart';
@@ -8,16 +10,23 @@ class LoginScreen extends StatefulWidget {
   LoginScreen({
     super.key,
     required this.switchScreenToTenders,
-    required this.addContractor,
+    // required this.addContractor,
   });
   // LoginScreen(this.switchScreenToNewTender, {Key? key}) : super(key: key);
   final Function() switchScreenToTenders;
-  void Function(Contractor contractor) addContractor;
+  // void Function(Contractor contractor) addContractor;
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  Widget state = Text('LOGIN', style: TextStyle(color: Colors.white));
+  void restate() {
+    setState(() {
+      state = Text('LOGIN', style: TextStyle(color: Colors.white));
+    });
+  }
+
   //     required this.switchScreenToTenders,
   //     required this.addContractor,
   final TextEditingController emailController = TextEditingController();
@@ -30,30 +39,42 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('يرجى إدخال البريد الإلكتروني وكلمة المرور')),
       );
+      restate();
       return;
     }
     if (!ContractorValidator.isEmailValid(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('يرجى إدخال بريد الإلكتروني صالح ')),
       );
+      restate();
+
       return;
     }
-    final result = await AuthService_Login.login(email, password);
+    final result = await AuthService.login(email, password);
 
     if (result != null) {
-      widget.switchScreenToTenders();
       final token = result['token'];
       final role = result['role'];
+      final userId = result['user_id'];
+      // log(role);
+      log('$userId');
+
+      // final userId = result['user_id'];
       await TokenStorage.saveToken(token);
+
       await TokenStorage.saveRole(role);
-      if ((TokenStorage.getRole()) == 'contractor') {
-        final contractorId = result['contractor_id'];
-        await TokenStorage.saveRole(contractorId);
-        print('تم تسجيل الدخول، contractor Id: $contractorId');
-      }
-      print('تم تسجيل الدخول، التوكن: $token');
-      print('تم تسجيل الدخول، role: $role');
+      await TokenStorage.saveUserrId(userId.toString());
+      log('تم تسجيل الدخول، user Id: $userId');
+      // await TokenStorage.saveContractorId(userId);
+      // if (role == 'contractor') {
+
+      // }
+      widget.switchScreenToTenders();
+      // print('تم تسجيل الدخول، التوكن: $token');
+      // print('تم تسجيل الدخول، role: $role');
     } else {
+      restate();
+
       ScaffoldMessenger.of(context).showSnackBar(
         // SnackBar(content: Text('فشل تسجيل الدخول')),
         SnackBar(content: Text('البريد الإلكتروني أو كلمة المرور غير صحيحة')),
@@ -102,11 +123,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
-                    // handleLogin();
-                    widget.switchScreenToTenders();
+                    setState(() {
+                      state = CircularProgressIndicator();
+                    });
+                    handleLogin();
+
+                    // widget.switchScreenToTenders();
                     // تنفيذ تسجيل الدخول
                   },
-                  child: Text('LOGIN', style: TextStyle(color: Colors.white)),
+                  child: state,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.cyan,
                     padding: EdgeInsets.symmetric(

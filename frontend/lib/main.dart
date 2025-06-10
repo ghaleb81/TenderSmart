@@ -1,11 +1,6 @@
-import 'package:tendersmart/login_screen.dart';
 import 'package:tendersmart/mainScreen.dart';
-import 'package:tendersmart/models/Tender.dart';
-import 'package:tendersmart/mainScreen.dart';
-import 'package:tendersmart/tenders.dart';
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
-import 'login_screen.dart';
 
 void main() {
   runApp(const TenderApp());

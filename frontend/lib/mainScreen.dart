@@ -72,75 +72,19 @@ class _MainScreenState extends State<MainScreen> {
   //   Bid(bidAmount: 444, completionTimeExcepted: 3, technicalMatchedCount: 3),
   //   Bid(bidAmount: 111, completionTimeExcepted: 4, technicalMatchedCount: 9),
   // ];
-  final List<Contractor> contractorList = [
-    Contractor(
-      companyName: 'It Company',
-      commercialRegistrationNumber: 4,
-      companyEmail: 'ghalebmarwa@gmail.com',
-      countryCity: 'Damas',
-      phoneNumber: '0992824259',
-      yearEstablished: DateTime(2010),
-      projectsLast5Years: 9,
-      qualityCertificates: 'qualityCertificates',
-      publicSectorSuccessfulContracts: 'publicSectorSuccessfulContracts',
-      websiteUrlOrLinkedinProfile: 'websiteUrlOrLinkedinProfile',
-      companyBio: 'companyBio',
-      uploadOfficialDocumentsAmount: 'uploadOfficialDocumentsAmount',
-      email: 'email',
-      password: 'password',
-    ),
-    Contractor(
-      companyName: 'QR Company',
-      commercialRegistrationNumber: 2,
-      companyEmail: 'eyadalkhateb@gmail.com',
-      countryCity: 'EAU',
-      phoneNumber: '22333',
-      yearEstablished: DateTime(2010),
-      projectsLast5Years: 9,
-      qualityCertificates: 'qualityCertificates',
-      publicSectorSuccessfulContracts: 'publicSectorSuccessfulContracts',
-      websiteUrlOrLinkedinProfile: 'websiteUrlOrLinkedinProfile',
-      companyBio: 'companyBio',
-      uploadOfficialDocumentsAmount: 'uploadOfficialDocumentsAmount',
-      email: 'email',
-      password: 'password',
-    ),
-    Contractor(
-      companyName: 'MCQ Company',
-      commercialRegistrationNumber: 5,
-      companyEmail: 'marwa@gmail.com',
-      countryCity: 'Syria',
-      phoneNumber: '32323111',
-      yearEstablished: DateTime(2010),
-      projectsLast5Years: 3,
-      qualityCertificates: 'qualityCertificates',
-      publicSectorSuccessfulContracts: 'publicSectorSuccessfulContracts',
-      websiteUrlOrLinkedinProfile: 'websiteUrlOrLinkedinProfile',
-      companyBio: 'companyBio',
-      uploadOfficialDocumentsAmount: 'uploadOfficialDocumentsAmount',
-      email: 'email',
-      password: 'password',
-    ),
-  ];
-  String currentUserRole = 'admin';
-  // void _addBid(Bid bid) {
+
+  // void _addContractor(Contractor contractor) {
   //   setState(() {
-  //     bidContractor.add(bid);
+  //     contractorList.add(contractor);
   //   });
   // }
-
-  void _addContractor(Contractor contractor) {
-    setState(() {
-      contractorList.add(contractor);
-    });
-  }
 
   @override
   void initState() {
     super.initState();
     activeScreen = LoginScreen(
       switchScreenToTenders: switchScreenToTenders,
-      addContractor: _addContractor,
+      // addContractor: _addContractor,
     );
   }
 
@@ -150,9 +94,9 @@ class _MainScreenState extends State<MainScreen> {
         currentTenders: _currentTenders,
         // bids: bidContractor,
         // addBid: _addBid,
-        addContractor: _addContractor,
+        // addContractor: _addContractor,
         switchScreenToTenders: switchScreenToTenders,
-        currentUserRole: currentUserRole,
+        // currentUserRole: currentUserRole,
       );
     });
   }
@@ -163,7 +107,7 @@ class _MainScreenState extends State<MainScreen> {
         tender: _currentTenders[0],
         // bids: bidContractor,
         // addBid: _addBid,
-        currentUserRole: currentUserRole,
+        // currentUserRole: currentUserRole,
       );
     });
   }

@@ -36,10 +36,10 @@ class _AddBidState extends State<AddBid> {
   //     technical_matched_count: 9,
   //   ),
   // ];
-  final _bid_amountController = TextEditingController();
-  final _completion_time_exceptedController = TextEditingController();
-  final _technical_matched_countController = TextEditingController();
-  final _technical_proposal_pdfController = TextEditingController();
+  final _bidAmountController = TextEditingController();
+  final _completionTimeExceptedController = TextEditingController();
+  final _technicalMatchedCountController = TextEditingController();
+  final _technicalProposalPdfController = TextEditingController();
   // void _addBid(Bid bid) {
   //   setState(() {
   //     Bid_Contractor.add(bid);
@@ -50,10 +50,10 @@ class _AddBidState extends State<AddBid> {
   @override
   void dispose() {
     super.dispose();
-    _bid_amountController.dispose();
-    _completion_time_exceptedController.dispose();
-    _technical_matched_countController.dispose();
-    _technical_proposal_pdfController.dispose();
+    _bidAmountController.dispose();
+    _completionTimeExceptedController.dispose();
+    _technicalMatchedCountController.dispose();
+    _technicalProposalPdfController.dispose();
   } //لتدمير الكونتولار بعد الانتهاء من العمل
 
   @override
@@ -88,7 +88,7 @@ class _AddBidState extends State<AddBid> {
                 decoration: InputDecoration(
                   label: Text(': الميزانية المقدمة من قبل المقاول'),
                 ),
-                controller: _bid_amountController,
+                controller: _bidAmountController,
                 maxLength: 50,
               ),
               TextField(
@@ -96,7 +96,7 @@ class _AddBidState extends State<AddBid> {
                   label: Text(': وقت التنفيذ للمقاول'),
                 ),
                 // onChanged: _saveChangeTitle,
-                controller: _completion_time_exceptedController,
+                controller: _completionTimeExceptedController,
                 maxLength: 50,
               ),
               TextField(
@@ -104,7 +104,7 @@ class _AddBidState extends State<AddBid> {
                   label: Text(': عدد الشروط الفنية المطابقة'),
                 ),
                 // onChanged: _saveChangeTitle,
-                controller: _technical_matched_countController,
+                controller: _technicalMatchedCountController,
                 maxLength: 50,
               ),
               FilePickerTextField(
@@ -137,19 +137,19 @@ class _AddBidState extends State<AddBid> {
                   ElevatedButton(
                     onPressed: () async {
                       final double? enteredBidAmount = double.tryParse(
-                        _bid_amountController.text,
+                        _bidAmountController.text,
                       );
                       final bool bidAmountIsInvalid =
                           enteredBidAmount == null || enteredBidAmount <= 0;
 
                       final int? enterdCompletionTimeExcepted = int.tryParse(
-                        _completion_time_exceptedController.text,
+                        _completionTimeExceptedController.text,
                       );
                       final bool CompletionTimeExceptedIsInvalid =
                           enterdCompletionTimeExcepted == null ||
                           enterdCompletionTimeExcepted <= 0;
                       final int? enteredTechnicalMatchedCount = int.tryParse(
-                        _technical_matched_countController.text,
+                        _technicalMatchedCountController.text,
                       );
                       final bool TechnicalMatchedCountIsInvalid =
                           enteredTechnicalMatchedCount == null ||
@@ -187,9 +187,9 @@ class _AddBidState extends State<AddBid> {
                               ),
                         );
                       } else {
+                        final contractorId = await TokenStorage.getUserrId();
                         final bid = Bid(
-                          contractorId:
-                              TokenStorage.getContractorId().toString(),
+                          contractorId: contractorId,
                           tenderId: widget.tenderId,
                           bidAmount: enteredBidAmount,
                           completionTimeExcepted: enterdCompletionTimeExcepted,
@@ -210,6 +210,8 @@ class _AddBidState extends State<AddBid> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('فشل في الإضافة :$e')),
                           );
+                          print(contractorId);
+                          print(bid.tenderId);
                           Navigator.pop(context);
                         }
                         // BidService.addBid(

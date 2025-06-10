@@ -52,20 +52,15 @@ class Tender {
   }
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'title': title,
-      'descripe': descripe,
+      'description': descripe,
       'location': location,
-      'implementationPeriod': implementationPeriod,
-      'numberOfTechnicalConditions': numberOfTechnicalConditions,
-      'registrationDeadline': DateFormat(
-        "yyyy-MM-dd HH:mm:ss",
-      ).format(registrationDeadline),
-      'stateOfTender': stateOfTender.name,
-      // 'expectedStartTime': DateFormat(
-      //   "yyyy-MM-dd HH:mm:ss",
-      // ).format(expectedStartTime),
-      'budget': budget,
+      'execution_duration_days': implementationPeriod,
+      'technical_requirements_count': numberOfTechnicalConditions,
+      'submission_deadline': registrationDeadline.toIso8601String(),
+      'status': stateOfTender.name,
+      // 'expectedStartTime': tender.expectedStartTime.toIso8601String(),
+      'estimated_budget': budget,
     };
   }
 }

@@ -16,10 +16,11 @@ class Bid {
   });
   factory Bid.fromJson(Map<String, dynamic> json) {
     return Bid(
-      tenderId: json['tender_id'],
-      bidAmount: json['bid_amount'],
-      completionTimeExcepted: json['completion_time'],
-      technicalMatchedCount: json['technical_matched_count'],
+      contractorId: json['contractor_id'] ?? '',
+      tenderId: json['tender_id'] ?? '',
+      bidAmount: json['bid_amount'] ?? '',
+      completionTimeExcepted: json['completion_time'] ?? '',
+      technicalMatchedCount: json['technical_matched_count'] ?? '',
     );
   }
   Map<String, dynamic> toJson() {

@@ -1,7 +1,6 @@
-import 'dart:developer' show log;
-
 import 'package:flutter/material.dart';
-import 'package:tendersmart/add_bid.dart';
+import 'package:tendersmart/bid_list_of_contractor.dart';
+import 'package:tendersmart/contractor_profile_page.dart';
 import 'package:tendersmart/login_screen.dart';
 import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/models/Tender.dart';
@@ -11,21 +10,18 @@ import 'package:tendersmart/saved_tender_list.dart';
 import 'package:tendersmart/services/auth_service.dart';
 import 'package:tendersmart/services/token_storage.dart';
 import 'package:tendersmart/tender_details.dart';
-import 'package:tendersmart/tenders.dart';
 import 'package:tendersmart/services/tender_service.dart';
 
 class TenderListPage extends StatefulWidget {
   TenderListPage({
     super.key,
-    // required this.tenders,
     required this.tenders,
     required this.onDeleteTender,
     this.bids,
     this.addBid,
     required this.switchScreenToTenders,
-    required this.addContractor,
+    // required this.addContractor,
     required this.currentTenders,
-    this.currentUserRole,
   });
 
   final List<Tender> tenders;
@@ -33,9 +29,9 @@ class TenderListPage extends StatefulWidget {
   final void Function(Bid bid)? addBid;
   List<Bid>? bids;
   final void Function() switchScreenToTenders;
-  final void Function(Contractor contractor) addContractor;
+  // final void Function(Contractor contractor) addContractor;
   final List<Tender> currentTenders;
-  final String? currentUserRole;
+
   @override
   State<TenderListPage> createState() => _TenderListPageState();
 }
@@ -46,15 +42,14 @@ class _TenderListPageState extends State<TenderListPage> {
   late Future<List<Tender>> tendersFuture;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    tendersFuture = TenderService.fetchTenders();
     loadUserRole();
+    tendersFuture = TenderService.fetchTenders();
   }
 
   void loadUserRole() async {
     role = await TokenStorage.getRole();
-    // setState(() {});
+    setState(() {});
   }
 
   void _addtender(Tender ten) {
@@ -65,8 +60,8 @@ class _TenderListPageState extends State<TenderListPage> {
 
   void _logout(BuildContext context) async {
     // 1. تسجيل الخروج من الـ backend وحذف التوكن
-    await AuthService_Login.logout();
-
+    await AuthService.logout();
+    print(TokenStorage.getToken());
     // 2. إعادة التوجيه إلى صفحة تسجيل الدخول
     Navigator.pushAndRemoveUntil(
       context,
@@ -76,7 +71,7 @@ class _TenderListPageState extends State<TenderListPage> {
               switchScreenToTenders:
                   widget
                       .switchScreenToTenders, // مرر دالة وهمية إن لم تكن بحاجة لها الآن
-              addContractor: (contractor) {}, // نفس الشيء
+              // addContractor: (contractor) {}, // نفس الشيء
             ),
       ),
       (route) => false, // هذا يغلق كل الصفحات السابقة ويبدأ من جديد
@@ -123,7 +118,17 @@ class _TenderListPageState extends State<TenderListPage> {
                             top: Radius.circular(20),
                           ),
                         ),
-                        child: NewTender(onAddTender: _addtender),
+                        child: Column(
+                          children: [
+                            NewTender(
+                              onAddTender: _addtender,
+                              tendersFuture: tendersFuture,
+                            ),
+                            // setState(() {
+
+                            // });
+                          ],
+                        ),
                       ),
                 );
               },
@@ -133,6 +138,7 @@ class _TenderListPageState extends State<TenderListPage> {
             SizedBox(),
         ],
       ),
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -155,7 +161,12 @@ class _TenderListPageState extends State<TenderListPage> {
               leading: Icon(Icons.person),
               title: Text('الملف الشخصي'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ContractorProfilePage(),
+                  ),
+                );
               },
             ),
 
@@ -166,7 +177,7 @@ class _TenderListPageState extends State<TenderListPage> {
                 onTap:
                     () => LoginScreen(
                       switchScreenToTenders: widget.switchScreenToTenders,
-                      addContractor: widget.addContractor,
+                      // addContractor: widget.addContractor,
                     ),
               )
             else
@@ -175,12 +186,24 @@ class _TenderListPageState extends State<TenderListPage> {
                   ListTile(
                     leading: Icon(Icons.people),
                     title: Text('قائمة العروض'),
-                    onTap: () => Navigator.pop(context),
+                    onTap:
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BidListOfContractor(),
+                          ),
+                        ),
                   ),
                   ListTile(
                     leading: Icon(Icons.people),
                     title: Text('قائمة المناقصات المحفوظة'),
-                    onTap: () => SavedTenderList(),
+                    onTap:
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SavedTenderList(),
+                          ),
+                        ),
                   ),
                 ],
               ),
@@ -293,9 +316,9 @@ class _TenderListPageState extends State<TenderListPage> {
                                                       // isFavorite: false,
                                                       bids: widget.bids,
                                                       addBid: widget.addBid,
-                                                      currentUserRole:
-                                                          widget
-                                                              .currentUserRole!,
+                                                      // currentUserRole:
+                                                      //     widget
+                                                      //         .currentUserRole!,
                                                     ),
                                               ),
                                             );
@@ -385,7 +408,7 @@ class _TenderListPageState extends State<TenderListPage> {
                                                             Navigator.pop(
                                                               context,
                                                             );
-                                                            TenderService.fetchTenders();
+                                                            // TenderService.fetchTenders();
 
                                                             // try {
                                                             //   await TenderService.deleteTenders(

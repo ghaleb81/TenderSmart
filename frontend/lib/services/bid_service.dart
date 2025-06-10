@@ -1,24 +1,33 @@
 import 'package:http/http.dart' as http;
-import 'package:tendersmart/add_bid.dart';
 import 'package:tendersmart/models/Bid.dart';
 import 'dart:convert';
-import 'dart:io';
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
+import 'package:tendersmart/services/token_storage.dart';
 
 class BidService {
+  static final ip = TokenStorage.getIp();
   static Future<List<Bid>> fetchBids() async {
-    final response = await http.get(
-      Uri.parse('http://192.168.214.174:8000/api/indexApi'),
-    );
+    final response = await http.get(Uri.parse('http://$ip:8000/api/bids'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> json = jsonDecode(response.body);
-      final List<dynamic> body = json['bids'];
+      final List<dynamic> body = json['bids'] ?? [];
       return body.map((json) => Bid.fromJson(json)).toList();
     } else {
       throw Exception('فشل في تحميل البيانات');
     }
   }
+
+  // static Future<List<Bid>> fetchBids() async {
+  //   final response = await http.get(
+  //     Uri.parse('http://${ip}:8000/api/indexApi'),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     final Map<String, dynamic> json = jsonDecode(response.body);
+  //     final List<dynamic> body = json['bids'];
+  //     return body.map((json) => Bid.fromJson(json)).toList();
+  //   } else {
+  //     throw Exception('فشل في تحميل البيانات');
+  //   }
+  // }
 
   // static Future<bool> addBid({
   //   required double bidAmount,
@@ -75,19 +84,26 @@ class BidService {
   //   }
   // }
   static Future<void> addBid(Bid bid) async {
+    final token = await TokenStorage.getToken();
     final response = await http.post(
-      Uri.parse('http://192.168.214.174:8000/api/storeTender'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'contractor_id': bid.contractorId,
-        'tender_id': bid.tenderId,
-        'bid_amount': bid.bidAmount,
-        'completion_time': bid.completionTimeExcepted,
-        'technical_matched_count': bid.technicalMatchedCount,
-      }),
+      Uri.parse('http://$ip:8000/api/bid/store'),
+      // headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode(bid.toJson()),
+
+      // json.encode({
+      //   'contractor_id': bid.contractorId,
+      //   'tender_id': bid.tenderId,
+      //   'bid_amount': bid.bidAmount,
+      //   'completion_time': bid.completionTimeExcepted,
+      //   'technical_matched_count': bid.technicalMatchedCount,
+      // }),
     );
     if (response.statusCode != 201) {
-      throw Exception('فشل في إضافة المناقصة');
+      throw Exception('فشل في إضافة العرض');
     }
     return;
   }

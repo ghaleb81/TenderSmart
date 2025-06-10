@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:tendersmart/mainScreen.dart';
 import 'package:tendersmart/models/Bid.dart';
 import 'package:tendersmart/services/bid_service.dart';
-import 'package:tendersmart/tenders_list.dart';
+import 'package:tendersmart/services/contractor_service.dart';
 
-class BidList extends StatefulWidget {
-  BidList({super.key, this.bids});
-  List<Bid>? bids;
-  // final String currentUserRole;
+class BidListOfContractor extends StatefulWidget {
+  const BidListOfContractor({super.key});
+
   @override
-  State<BidList> createState() => _BidListState();
+  State<BidListOfContractor> createState() => _BidListOfContractorState();
 }
 
-class _BidListState extends State<BidList> {
+class _BidListOfContractorState extends State<BidListOfContractor> {
   late Future<List<Bid>> bidsFuture;
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
     // loadUserRole();
-    bidsFuture = BidService.fetchBids();
+    bidsFuture = ContractorService.fetchContractorBids();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('قائمة العروض')),
-      body: FutureBuilder(
+      body: FutureBuilder<List<Bid>>(
         future: bidsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -33,7 +32,7 @@ class _BidListState extends State<BidList> {
           } else if (snapshot.hasError) {
             return Center(child: Text('خطأ : ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('لا توجد مناقصات حالياً'));
+            return Center(child: Text('لا توجد عروض حالياً'));
           } else {
             final bids = snapshot.data!;
             return ListView.builder(
@@ -49,53 +48,36 @@ class _BidListState extends State<BidList> {
                       onPressed: () {
                         // sendWinnerOffer(offer['id']);
                       },
-                      child: Text('اختيار كفائز'),
+                      child: Text('تعديل العرض'),
                     ),
                   ),
                 );
               },
             );
-            // ListView.builder(
-            //   itemCount: bids.length,
-            //   itemBuilder: (context, index) {
-            //     final bid = bids[index];
-            //     return Expanded(
-            //       child: Card(
-            //         child: Column(
-            //           children: [
-            //             Row(children: [Text(bid.tenderId)]),
-            //           ],
-            //         ),
-            //       ),
-            //     );
-            //   },
-            // );
           }
         },
       ),
-
-      //  ListView.builder(
-      //   itemCount: widget.bids!.length,
-      //   itemBuilder: (context, index) {
-      //     final bid = widget.bids![index];
-      //     return Card(
-      //       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      //       child: ListTile(
-      //         title: Text(bid.tenderId),
-      //         subtitle: Text(bid.bidAmount.toString()),
-      //         trailing: ElevatedButton(
-      //           onPressed: () {
-      //             // sendWinnerOffer(offer['id']);
-      //           },
-      //           child: Text('اختيار كفائز'),
-      //         ),
-      //       ),
-      //     );
-      //   },
-      // ),
     );
   }
-}// @override
+  // import 'package:flutter/material.dart';
+  // import 'package:tendersmart/mainScreen.dart';
+  // import 'package:tendersmart/models/Bid.dart';
+  // import 'package:tendersmart/tenders_list.dart';
+
+  // class BidList extends StatefulWidget {
+  //   BidList({super.key, this.bids});
+  //   List<Bid>? bids;
+  //   // final String currentUserRole;
+  //   @override
+  //   State<BidList> createState() => _BidListState();
+  // }
+
+  // class _BidListState extends State<BidList> {
+  //   @override
+  //   Widget build(BuildContext context) {
+  //     return
+  //   }
+  // @override
 
   // Widget build(BuildContext context) {
   //   return
@@ -254,4 +236,5 @@ class _BidListState extends State<BidList> {
   //     ),
   //   );
   // }
-
+  // }
+}
