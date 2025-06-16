@@ -201,7 +201,7 @@ public function storeApi(Request $request)
 
     $request->validate([
         'tender_id' => 'required|exists:tenders,id',
-        'contractor_id' => 'required|exists:contractors,id',
+        'contractor_id' => 'exists:contractors,id',
         'bid_amount' => 'required|numeric',
         'completion_time' => 'required|integer',
         'technical_proposal_pdf' => 'nullable|mimes:pdf|max:10240',
@@ -233,11 +233,16 @@ public function storeApi(Request $request)
 public function updateApi(Request $request, $id)
 {
     $bid = Bid::findOrFail($id);
-
-    if ($request->user()->id !== $bid->contractor_id) {
+    if ($request->user()->contractor->id !== $bid->contractor_id) {
         return response()->json(['message' => 'Unauthorized'], 403);
     }
+ // الوصول إلى المناقصة المرتبطة
+    $tender = $bid->tender;
 
+    // التحقق مما إذا كانت المناقصة مغلقة
+    if ($tender->status === 'closed') {
+        return response()->json(['message' => 'انتهى وقت التقديم، لا يمكنك تعديل العرض.'], 403);
+    }
     $request->validate([
         'bid_amount' => 'nullable|numeric',
         'completion_time' => 'nullable|integer',

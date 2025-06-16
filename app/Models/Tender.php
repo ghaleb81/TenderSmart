@@ -30,5 +30,10 @@ class Tender extends Model
 {
     return $this->belongsToMany(User::class, 'saved_tenders')->withTimestamps();
 }
+public function winnerBid()
+{
+    return $this->belongsTo(Bid::class, 'winner_bid_id');
+}
+
 
 }

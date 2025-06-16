@@ -27,8 +27,10 @@ class Bid extends Model
     }
 
     // العلاقة بين العرض والمقاول
-    public function contractor()
-    {
-        return $this->belongsTo(User::class, 'contractor_id');
-    }
+  public function contractor()
+{
+    return $this->belongsTo(Contractor::class, 'contractor_id');
+}
+
+
 }

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tender;
+use App\Models\User;
+use App\Notifications\NewTenderNotification;
+use App\Notifications\WinnerSelected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -16,11 +19,48 @@ class TenderController extends Controller
         return view('dashboard', compact(var_name: 'tenders'));
     }
 
-   public function indexApi(){
-    $tenders=Tender::all();
+   public function indexApi(Request $request)
+{
+    $query = Tender::query();
+
+    if ($request->filled('keyword')) {
+        $keyword = $request->input('keyword');
+        $query->where(function ($q) use ($keyword) {
+            $q->where('tender_title', 'like', "%$keyword%")
+              ->orWhere('tender_description', 'like', "%$keyword%");
+        });
+    }
+
+    if ($request->filled('الموقع')) {
+        $query->where('location', $request->input('الموقع'));
+    }
+
+    if ($request->filled('السعر')) {
+        $query->where('estimated_budget', '>=', $request->input('السعر'));
+    }
+
+    if ($request->filled('اخر وقت تقديم')) {
+        $query->whereDate('submission_deadline', '<=', $request->input('اخر وقت تقديم'));
+    }
+
+    $tenders = $query->orderBy('submission_deadline', 'desc')->paginate(10);
+
     return response()->json([
-        'tenders' =>$tenders ],200);
-   }
+        'tenders' => $tenders
+    ], 200);
+}
+
+    public function openedTenders()
+{
+    $tenders = Tender::where('status', 'opened')->paginate(10); // 10 بكل صفحة
+
+    return response()->json([
+        'message' => 'تمت العملية بنجاح',
+        'data' => $tenders,
+    ], 200);
+}
+
+
     public function store(Request $request)
     {
         $request->validate([    
@@ -66,7 +106,10 @@ class TenderController extends Controller
         }
     
         $tender = Tender::create($data);
-    
+         $users = User::all();
+        foreach ($users as $user) {
+             $user->notify(new NewTenderNotification($tender));
+}
         return response()->json([
             'message' => 'تم إنشاء المناقصة بنجاح.',
             'data' => $tender,
@@ -176,4 +219,34 @@ class TenderController extends Controller
         $tender->delete();
         return response()->json(["message"=>"The tender deleted"],200);
     }
+
+   public function selectWinner($tenderId)
+{
+    // جلب المناقصة
+    $tender = Tender::with('bids')->findOrFail($tenderId);
+
+    // التأكد أنه في عروض
+    if ($tender->bids->isEmpty()) {
+        return response()->json(['message' => 'لا توجد عروض لهذه المناقصة.'], 404);
+    }
+
+    // جلب العرض بأعلى final_bid_score
+    $winningBid = $tender->bids->sortByDesc('final_bid_score')->first();
+
+    // ربط العرض الفائز بالمناقصة
+    $tender->winner_bid_id = $winningBid->id;
+    $tender->save();
+
+    // إرسال إشعار للمقاول الفائز (اختياري)
+    // Notification::send($winningBid->contractor->user, new WinnerNotification($tender));
+ // إرسال الإشعار للمقاول الفائز
+    $contractorUser = $winningBid->contractor->user;
+    $contractorUser->notify(new WinnerSelected($tender));
+    return response()->json([   
+        'message' => 'تم اختيار العرض الفائز بنجاح.',
+        'winner_bid' => $winningBid
+    ]);
+}
+
+
 }
