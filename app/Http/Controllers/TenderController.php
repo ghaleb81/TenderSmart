@@ -6,6 +6,7 @@ use App\Models\Tender;
 use App\Models\User;
 use App\Notifications\NewTenderNotification;
 use App\Notifications\WinnerSelected;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -85,7 +86,7 @@ class TenderController extends Controller
 
         return redirect()->back()->with('success', 'تم إنشاء المناقصة بنجاح.');
     }
-    public function storeApi(Request $request)
+    public function storeApi(Request $request,FirebaseService $firebase)
     {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -106,9 +107,14 @@ class TenderController extends Controller
         }
     
         $tender = Tender::create($data);
-         $users = User::all();
-        foreach ($users as $user) {
-             $user->notify(new NewTenderNotification($tender));
+    $users = User::whereNotNull('device_token')->get();
+         foreach ($users as $user) {
+        $firebase->sendNotification(
+            $user->device_token,
+            ' تمت إضافة مناقصة جديدة',
+            $tender->title
+        );
+    
 }
         return response()->json([
             'message' => 'تم إنشاء المناقصة بنجاح.',

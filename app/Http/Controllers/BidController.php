@@ -25,8 +25,16 @@ public function index(Request $request)
 
     return response()->json(['the bids' =>$bids ],200);
 }
+public function show(Request $request,$tenderId)
+{
+    $user = $request->user();
 
-    public function show(Request $request, $tender_id)
+    // جلب كل العروض مع المناقصة المرتبطة بها
+    $bids = Bid::where('tender_id',$tenderId)->get();
+
+    return response()->json(['the bids' =>$bids ],200);
+}
+    public function showw(Request $request, $tender_id)
 {
     $user = $request->user();
 
