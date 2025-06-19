@@ -39,5 +39,9 @@ class Contractor extends Model
 {
     return $this->hasMany(Bid::class);
 }
+public function signatures()
+{
+    return $this->hasMany(ContractorSignature::class);
+}
 
 }

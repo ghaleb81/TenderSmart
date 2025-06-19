@@ -2,19 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bid;
 use App\Models\Contractor;
+use App\Models\ContractorSignature;
+use App\Models\Tender;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Mpdf\Mpdf;
+use Illuminate\Support\Facades\Http;
+
 
 class ContractorController extends Controller
 {
     /**
      * Show the contractor form.
+     * 
+     * 
      */
-    public function show($id){
-    
-    $contractor=Contractor::with('bids')->findOrFail($id);
+    public function show(Request $request){
+    $user=$request->user();
+    $contractor = Contractor::with('bids')->where('user_id', $user->id)->first();
         return response()->json(["The Detail of Contactor:"=>$contractor],200);
     }
 
@@ -66,6 +75,69 @@ class ContractorController extends Controller
     return response()->json([
         'has_profile' => $hasProfile,
     ], 200);
+}
+
+public function generateContractPdf($contractorId, $tenderId, $bidId)
+{
+    $contractor = Contractor::findOrFail($contractorId);
+    $tender = Tender::findOrFail($tenderId);
+    $bid = Bid::findOrFail($bidId);
+
+    $html = view('contracts.contracts', compact('contractor', 'tender', 'bid'))->render();
+
+    $mpdf = new \Mpdf\Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4',
+        'default_font' => 'dejavusans',
+        'autoLangToFont' => true,
+        'autoScriptToLang' => true,
+    ]);
+
+    $mpdf->WriteHTML($html);
+
+    return $mpdf->Output('contract.pdf', 'I');
+}
+
+public function sendToSign($contractorId, $tenderId, $bidId)
+{
+    $contractor = Contractor::with('user')->findOrFail($contractorId);
+    $tender = Tender::findOrFail($tenderId);
+    $bid = Bid::findOrFail($bidId);
+
+    // توليد PDF وتخزينه مؤقتاً
+    $html = view('contracts.contracts', compact('contractor', 'tender', 'bid'))->render();
+    $pdfPath = storage_path("app/contracts/contract_{$bid->id}.pdf");
+
+    $mpdf = new \Mpdf\Mpdf();
+    $mpdf->WriteHTML($html);
+    $mpdf->Output($pdfPath, \Mpdf\Output\Destination::FILE);
+
+    // إرسال الملف إلى Docsign API
+    $response = Http::withToken('YOUR_DOCSIGN_API_TOKEN')
+        ->attach('file', file_get_contents($pdfPath), 'contract.pdf')
+        ->post('https://api.docsign.com/send', [
+            'recipient_name' => $contractor->user->name,
+            'recipient_email' => $contractor->user->email,
+            'subject' => 'عقد تنفيذ المناقصة',
+            'message' => 'يرجى توقيع العقد المرفق.'
+        ]);
+
+    if ($response->successful()) {
+        $data = $response->json();
+
+        // حفظ الرابط أو ID في قاعدة البيانات
+        ContractorSignature::create([
+            'contractor_id' => $contractorId,
+            'tender_id' => $tenderId,
+            'bid_id' => $bidId,
+            'signing_url' => $data['signing_url'], // أو حسب الاستجابة الفعلية
+            'status' => 'sent',
+        ]);
+
+        return redirect($data['signing_url']); // إعادة التوجيه للتوقيع
+    }
+
+    return back()->with('error', 'فشل إرسال العقد للتوقيع.');
 }
 
 }

@@ -26,7 +26,7 @@ $token = $user->createToken('auth_token')->plainTextToken;
     return response()->json([
         'access_token' => $token,
         'token_type' => 'Bearer',
-        'role'=>$request->user()->role,
+        
     ], 201);    }
     
     public function login(Request $request){
@@ -64,4 +64,15 @@ return response()->json([
 
 ],200);
  }
+
+ public function getNotifications(Request $request)
+{
+    $user = $request->user();
+    $notifications = $user->notifications()->latest()->get();
+
+    return response()->json([
+        'notifications' => $notifications
+    ]);
+}
+
 }

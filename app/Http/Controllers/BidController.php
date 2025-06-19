@@ -15,95 +15,160 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class BidController extends Controller
 {
-    public function index($tender_id)
+
+public function index(Request $request)
 {
+    $user = $request->user();
+
+    // جلب كل العروض مع المناقصة المرتبطة بها
+    $bids = Bid::with('tender')->get();
+
+    return response()->json(['the bids' =>$bids ],200);
+}
+
+    public function show(Request $request, $tender_id)
+{
+    $user = $request->user();
+
+    // جلب المناقصة مع عروضها والمقاولين المرتبطين
     $tender = Tender::with(['bids.contractor'])->findOrFail($tender_id);
 
+    // تجهيز بيانات العروض لتُرسل إلى سكربت الذكاء الاصطناعي
     $bids_data = $tender->bids->map(function ($bid) {
-        return [    
-            "id" => $bid->id,
+        return [
             "contractor_id" => $bid->contractor_id,
             "bid_amount" => $bid->bid_amount,
-            "budget" => $bid->tender->estimated_budget,
+            "estimated_budget" => $bid->tender->estimated_budget,
             "completion_time" => $bid->completion_time,
-            "required_duration" => $bid->tender->execution_duration_days,
+            "execution_duration_days" => $bid->tender->execution_duration_days,
             "quality_certificates" => $bid->contractor->quality_certificates ?? 0,
             "projects_last_5_years" => $bid->contractor->projects_last_5_years ?? 0,
             "technical_matched_count" => $bid->technical_matched_count,
             "technical_requirements_count" => $bid->tender->technical_requirements_count
         ];
-    });
+    })->toArray();
 
-    // المسار الكامل إلى Python وملف السكربت
-    $pythonPath = 'C:\Users\Lenovo\AppData\Local\Microsoft\WindowsApps\python.exe';
-$scriptPath = 'C:\\Users\\Lenovo\\Desktop\\course laravel\\TenderLaravel\\ai\\evaluate_tenders.py';
+    // المسارات للبايثون والسكربت
+    $pythonPath = 'C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\python.exe';
+    $scriptPath = 'C:\\Users\\Lenovo\\Desktop\\course laravel\\TenderLaravel\\ai\\evaluate_tenders.py';
 
-$results = [];
+    // إنشاء عملية بايثون
+    $process = new Process([$pythonPath, $scriptPath]);
+    $process->setInput(json_encode($bids_data));
+    $process->run();
 
-foreach ($bids_data as $bid) {
-    $bid_amount = $bid['bid_amount'];
-    $budget = $bid['budget'];
-    $completion_time = $bid['completion_time'];
-    $required_duration = $bid['required_duration'];
-    $quality_certificate_count = $bid['quality_certificates'];
-    $years_of_experience = $bid['projects_last_5_years'];
-    $technical_matched_count = $bid['technical_matched_count'];
-    $technical_requirment_count = $bid['technical_requirements_count'];
-
-    // الميزانية
-    $budget_adherence = min(($bid_amount / $budget) * 10, 10);
-
-    // السرعة
-    if ($completion_time <= $required_duration) {
-        $speed_score = 10;
-    } else {
-        $delay = $completion_time - $required_duration;
-        $max_delay = 364;
-        $normalized_delay = $delay / $max_delay;
-        $speed_score = max(0, 10 * (1 - $normalized_delay));
+    // التحقق من النجاح
+    if (!$process->isSuccessful()) {
+        throw new ProcessFailedException($process);
     }
 
-    // الجودة
-    $quality_score = min(10, 5 + ($quality_certificate_count * 1) + ($years_of_experience > 5 ? 2 : 0));
+    // تحليل النتائج القادمة من السكربت
+    $results = json_decode($process->getOutput(), true);
 
-    // التقني
-    $technical_score = ($technical_matched_count / max($technical_requirment_count, 1)) * 10;
-
-    // التقييم النهائي (نموذج بسيط تجريبي بديل عن ML)
-    $final_score = round((
-        0.3 * $technical_score +
-        0.2 * $budget_adherence +
-        0.2 * $quality_score +
-        0.3 * $speed_score
-    ), 2);
-
-    $results[] = [
-        "contractor_id" => $bid['contractor_id'],
-        "predicted_score" => $final_score,
-    ];
-}
-
-    // $process->setInput(json_encode($bids_data));
-    // $process->run();
-
-    // if (!$process->isSuccessful()) {
-    //     throw new ProcessFailedException($process);
-    // }
-
-    // $results = json_decode($process->getOutput(), true);
-
+    // تحديث نتائج التقييم في قاعدة البيانات
     foreach ($results as $result) {
         Bid::where('contractor_id', $result['contractor_id'])
             ->where('tender_id', $tender_id)
             ->update(['final_bid_score' => $result['predicted_score']]);
     }
 
+    // ترتيب العروض حسب التقييم النهائي
     $sorted_bids = Bid::where('tender_id', $tender_id)
         ->orderByDesc('final_bid_score')
         ->get();
 
     return view('bids.index', compact('tender', 'sorted_bids'));
 }
+//     public function index(Request $request ,$tender_id)
+// {
+//     $user=$request->user();
+//     $tender = Tender::with(['bids.contractor'])->findOrFail($tender_id);
+
+//     $bids_data = $tender->bids->map(function ($bid) {
+//         return [    
+//             "id" => $bid->id,
+//             "contractor_id" => $bid->contractor_id,
+//             "bid_amount" => $bid->bid_amount,
+//             "budget" => $bid->tender->estimated_budget,
+//             "completion_time" => $bid->completion_time,
+//             "required_duration" => $bid->tender->execution_duration_days,
+//             "quality_certificates" => $bid->contractor->quality_certificates ?? 0,
+//             "projects_last_5_years" => $bid->contractor->projects_last_5_years ?? 0,
+//             "technical_matched_count" => $bid->technical_matched_count,
+//             "technical_requirements_count" => $bid->tender->technical_requirements_count
+//         ];
+//     });
+
+//     // المسار الكامل إلى Python وملف السكربت
+//     $pythonPath = 'C:\Users\Lenovo\AppData\Local\Microsoft\WindowsApps\python.exe';
+// $scriptPath = 'C:\\Users\\Lenovo\\Desktop\\course laravel\\TenderLaravel\\ai\\evaluate_tenders.py';
+
+// $results = [];
+
+// foreach ($bids_data as $bid) {
+//     $bid_amount = $bid['bid_amount'];
+//     $budget = $bid['budget'];
+//     $completion_time = $bid['completion_time'];
+//     $required_duration = $bid['required_duration'];
+//     $quality_certificate_count = $bid['quality_certificates'];
+//     $years_of_experience = $bid['projects_last_5_years'];
+//     $technical_matched_count = $bid['technical_matched_count'];
+//     $technical_requirment_count = $bid['technical_requirements_count'];
+
+//     // الميزانية
+//     // $budget_adherence = min(($bid_amount / $budget) * 10, 10);
+
+//     // السرعة
+//     // if ($completion_time <= $required_duration) {
+//     //     $speed_score = 10;
+//     // } else {
+//     //     $delay = $completion_time - $required_duration;
+//     //     $max_delay = 364;
+//     //     $normalized_delay = $delay / $max_delay;
+//     //     $speed_score = max(0, 10 * (1 - $normalized_delay));
+//     // }
+
+//     // الجودة
+//     // $quality_score = min(10, 5 + ($quality_certificate_count * 1) + ($years_of_experience > 5 ? 2 : 0));
+
+//     // التقني
+//     // $technical_score = ($technical_matched_count / max($technical_requirment_count, 1)) * 10;
+
+//     // التقييم النهائي (نموذج بسيط تجريبي بديل عن ML)
+//     // $final_score = round((
+//     //     0.3 * $technical_score +
+//     //     0.2 * $budget_adherence +
+//     //     0.2 * $quality_score +
+//     //     0.3 * $speed_score
+//     // ), 2);
+
+//     $results[] = [
+//         "contractor_id" => $bid['contractor_id'],
+//         "predicted_score" => $final_score,
+//     ];
+// }
+
+//     // $process->setInput(json_encode($bids_data));
+//     // $process->run();
+
+//     // if (!$process->isSuccessful()) {
+//     //     throw new ProcessFailedException($process);
+//     // }
+
+//     // $results = json_decode($process->getOutput(), true);
+
+//     foreach ($results as $result) {
+//         Bid::where('contractor_id', $result['contractor_id'])
+//             ->where('tender_id', $tender_id)
+//             ->update(['final_bid_score' => $result['predicted_score']]);
+//     }
+
+//     $sorted_bids = Bid::where('tender_id', $tender_id)
+//         ->orderByDesc('final_bid_score')
+//         ->get();
+
+//     return view('bids.index', compact('tender', 'sorted_bids'));
+// }
 
 // public function index($tender_id)
 // {
@@ -191,7 +256,7 @@ public function store(Request $request,$tender)
 public function storeApi(Request $request)
 {
       $user =$request->user();
-
+    $contractor = Contractor::where('user_id', $user->id)->firstOrFail();
     
     $hasProfile =$user->contractor()->exists();
     if (!$hasProfile){
@@ -201,7 +266,7 @@ public function storeApi(Request $request)
 
     $request->validate([
         'tender_id' => 'required|exists:tenders,id',
-        'contractor_id' => 'exists:contractors,id',
+        'contractor_id' => 'exists:contractor->id',
         'bid_amount' => 'required|numeric',
         'completion_time' => 'required|integer',
         'technical_proposal_pdf' => 'nullable|mimes:pdf|max:10240',
@@ -215,7 +280,7 @@ public function storeApi(Request $request)
 
     $bid = Bid::create([
         'tender_id' => $request->tender_id,
-'contractor_id' => $request->user()->contractor->id,
+'contractor_id' => $contractor->id,
         'bid_amount' => $request->bid_amount,
         'completion_time' => $request->completion_time,
         'technical_proposal_pdf' => $pdfPath,

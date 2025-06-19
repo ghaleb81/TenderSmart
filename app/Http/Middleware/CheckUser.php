@@ -13,11 +13,14 @@ class CheckUser
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
-    {
-        if ($request->user()->role==='admin')
-        return $next($request);
-    
-        return response()->json(["message"=>"unauthorized"],401);
+    public function handle($request, Closure $next, ...$roles): Response
+  {
+    $user = $request->user();
+
+    if (!$user || !in_array($user->role, $roles)) {
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
+
+    return $next($request);
+}
 }
