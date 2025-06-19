@@ -18,9 +18,6 @@ class DatabaseSeeder extends Seeder
             TenderSeeder::class,
             BidSeeder::class,
         ]);
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+       
     }
 }
