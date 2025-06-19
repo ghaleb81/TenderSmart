@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SignatureController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CheckUser;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,11 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::prefix('bid')->group(function(){
         Route::post('/store', [BidController::class, 'storeApi']); // POST
         Route::put('/update/{id}', [BidController::class, 'updateApi']); 
+        Route::middleware([CheckUser::class.':admin,committee'])->group(function(){
+
+        Route::get('/index',[BidController::class,'index']);
+    });
+
                  
     });
 });
@@ -93,4 +99,6 @@ Route::middleware('auth:sanctum')->group(function(){
 //  الحصول على نتيجة التقييم 
 Route::get('/bids/{id}/result', [BidController::class, 'result']);
 
+Route::get('/contract/pdf/{contractor}/{tender}/{bid}', action: [ContractorController::class, 'generateContractPdf'])->name('contract.pdf');
 
+Route::post('/docsign/callback', [SignatureController::class, 'handleCallback']);
