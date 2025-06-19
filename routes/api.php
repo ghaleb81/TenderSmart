@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DeviceTokenController;
 use App\Http\Controllers\SignatureController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CheckUser;
@@ -19,6 +20,19 @@ Route::get('/user', function (Request $request) {
 Route::post('register',[UserController::class,'register']);
 Route::post('login',[UserController::class,'login']);
 Route::post('logout',[UserController::class,'logout'])->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->post('/save-device-token', [DeviceTokenController::class, 'save']);
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Route::post('storeTender', [TenderController::class,'storeApi']);  
@@ -43,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function(){
          Route::get('/opened',[TenderController::class,'openedTenders']);
 
 
-         Route::middleware([CheckUser::class])->group(function(){
+         Route::middleware([CheckUser::class.':admin'])->group(function(){
               Route::get ('/show/{id}',[TenderController::class,'showApi']); 
 
               Route::post('/store', [TenderController::class,'storeApi']);
@@ -75,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('/update/{id}', [BidController::class, 'updateApi']); 
         Route::middleware([CheckUser::class.':admin,committee'])->group(function(){
 
+        Route::get('/show/{id}',[BidController::class,'show']);
         Route::get('/index',[BidController::class,'index']);
     });
 
