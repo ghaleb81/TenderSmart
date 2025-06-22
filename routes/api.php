@@ -13,6 +13,7 @@ use App\Http\Controllers\SavedTenderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Log;
 
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -66,6 +67,10 @@ Route::middleware('auth:sanctum')->group(function(){
 
                Route::delete ('destroy/{id}',[TenderController::class,'destroyApi']);
                Route::post('{id}/winner', [TenderController::class, 'selectWinner']);
+               Route::post('/winner', [TenderController::class, 'setManualWinner']);
+
+               Route::post('{tender}/evaluate', [BidController::class, 'evaluateBidsApi']);
+
 
 }); 
 
@@ -104,16 +109,35 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::prefix('contractor')->group(function(){
         Route::post('/store', [ContractorController::class, 'store']); // POST
 
-        Route::middleware([CheckUser::class])->group(function () {
         Route::get('/show/{id}', [ContractorController::class, 'show']);});   
         Route::get('/bids',[BidController::class,'previousbids']);
 
-    });
+    
 });
 
 //  الحصول على نتيجة التقييم 
 Route::get('/bids/{id}/result', [BidController::class, 'result']);
 
-Route::get('/contract/pdf/{contractor}/{tender}/{bid}', action: [ContractorController::class, 'generateContractPdf'])->name('contract.pdf');
+Route::get('/contract/pdf/{contractor}/{tender}/{bid}', 
+ [ContractorController::class, 'generateContractPdf'])->name('contract.pdf');
 
 Route::post('/docsign/callback', [SignatureController::class, 'handleCallback']);
+
+
+Route::get('/contracts/send/{contractorId}/{tenderId}/{bidId}', 
+[ContractorController::class, 'sendToSign'])->name('contract.send');
+
+
+
+
+Route::get('/test-signature', [SignatureController::class, 'test']);
+
+Route::get('/send-to-sign/{contractorId}/{tenderId}/{bidId}', 
+[ContractorController::class, 'sendContractToSign']);
+
+
+
+
+
+
+               
