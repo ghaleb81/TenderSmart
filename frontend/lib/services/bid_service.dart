@@ -1,110 +1,189 @@
+import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:tendersmart/models/Bid.dart';
+import 'package:tendersmart/models/Tender.dart';
 import 'dart:convert';
 import 'package:tendersmart/services/token_storage.dart';
+import 'package:http_parser/http_parser.dart';
 
 class BidService {
   static final ip = TokenStorage.getIp();
-  static Future<List<Bid>> fetchBids() async {
-    final response = await http.get(Uri.parse('http://$ip:8000/api/bids'));
+  static String baseUrl = 'http://$ip:8000'; // عدّله حسب جهازك
+
+  static Future<List<Bid>> fetchBids(int tenderId) async {
+    final token = await TokenStorage.getToken();
+    final url = Uri.parse('$ip/api/bid/show/$tenderId');
+
+    final response = await http.get(
+      url,
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+
     if (response.statusCode == 200) {
-      final Map<String, dynamic> json = jsonDecode(response.body);
-      final List<dynamic> body = json['bids'] ?? [];
-      return body.map((json) => Bid.fromJson(json)).toList();
+      final data = json.decode(response.body);
+      log(data.toString());
+
+      // تحقق أن المفتاح موجود وأنه List
+      final bidsJson = data['the bids'];
+      if (bidsJson == null || bidsJson is! List) {
+        // إذا لم توجد بيانات أو غير قائمة، أرجع قائمة فارغة
+        return [];
+      }
+
+      return bidsJson.map((json) => Bid.fromJson(json)).toList();
     } else {
-      throw Exception('فشل في تحميل البيانات');
+      throw Exception('فشل في جلب العروض (${response.statusCode})');
     }
   }
 
-  // static Future<List<Bid>> fetchBids() async {
+  // static Future<List<Bid>> fetchBids(int id) async {
+  //   final token = await TokenStorage.getToken();
   //   final response = await http.get(
-  //     Uri.parse('http://${ip}:8000/api/indexApi'),
+  //     Uri.parse('http://$ip:8000/api/bids/$id/result'),
+  //     headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
   //   );
+
   //   if (response.statusCode == 200) {
-  //     final Map<String, dynamic> json = jsonDecode(response.body);
-  //     final List<dynamic> body = json['bids'];
+  //     final List<dynamic> body = jsonDecode(response.body);
+  //     log('$body');
   //     return body.map((json) => Bid.fromJson(json)).toList();
   //   } else {
+  //     log('Status Code: ${response.statusCode}');
+  //     log('Response Body: ${response.body}');
   //     throw Exception('فشل في تحميل البيانات');
   //   }
   // }
 
-  // static Future<bool> addBid({
-  //   required double bidAmount,
-  //   required int completionTime,
-  //   required int technicalMatched,
-  //   File? technicalProposalPdf,
-  //   // required String token,
+  static Future<List<Bid>> fetchPreviousBids() async {
+    final token = await TokenStorage.getToken();
+    final url = Uri.parse('$ip/api/contractor/bids');
+    // final url = Uri.parse('http://$ip:8000/api/contractor/bids');
+
+    final response = await http.get(
+      url,
+      // headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> body = jsonDecode(response.body);
+      log('Contractor Data: $body');
+      return body.map((json) => Bid.fromJson(json)).toList();
+    } else if (response.statusCode == 404) {
+      throw Exception('لا يوجد لديك حساب مقاول');
+    } else {
+      throw Exception('فشل في تحميل العروض السابقة');
+    }
+  }
+
+  static Future<void> chooseWinner(int bidId, int tenderId) async {
+    final token = await TokenStorage.getToken();
+    final url = Uri.parse('$ip/api/Tender/$tenderId/winner');
+
+    final response = await http.post(
+      url,
+      headers: {'Accept': 'application/json', 'Authorization': 'Bearer $token'},
+      body: jsonEncode({'bid_id': bidId}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('فشل في اختيار الفائز');
+    }
+  }
+  // static Future<void> addBid(
+  //   Bid bid, {
+  //   File? technicalFile,
+  //   String? technicalFileName,
   // }) async {
-  //   var url = Uri.parse('http://192.168.214.174:8000/api/storeApi');
+  //   final token = await TokenStorage.getToken();
+  //   final uri = Uri.parse('$ip/api/bid/store');
+  //   // final uri = Uri.parse('http://$ip:8000/api/bid/store');
+  //   final request = http.MultipartRequest('POST', uri);
 
-  //   var request =
-  //       http.MultipartRequest('POST', url)
-  //         // ..headers['Authorization'] = 'Bearer $token'
-  //         ..fields['bid_amount'] = bidAmount.toString()
-  //         ..fields['completion_time_excepted'] = completionTime.toString()
-  //         ..fields['technical_matched_count'] = technicalMatched.toString();
+  //   // إعداد التوكن
+  //   request.headers['Authorization'] = 'Bearer $token';
+  //   request.headers['Accept'] = 'application/json';
 
-  //   if (technicalProposalPdf != null) {
-  //     final mimeType =
-  //         lookupMimeType(technicalProposalPdf.path) ?? 'application/pdf';
+  //   // تعبئة الحقول النصية من الـ bid
+  //   bid.toJson().forEach((key, value) {
+  //     request.fields[key] = value.toString();
+  //   });
+
+  //   // إرسال ملف PDF إن وُجد
+  //   if (technicalFile != null && technicalFileName != null) {
   //     request.files.add(
   //       await http.MultipartFile.fromPath(
-  //         'technical_proposal_pdf',
-  //         technicalProposalPdf.path,
-  //         contentType: MediaType.parse(mimeType),
+  //         'technical_proposal_pdf', // ← يجب أن يتطابق مع اسم الحقل في الباك
+  //         technicalFile.path,
+  //         filename: technicalFileName,
+  //         contentType: MediaType('application', 'pdf'),
   //       ),
   //     );
   //   }
 
-  //   final streamedResponse = await request.send();
-  //   final response = await http.Response.fromStream(streamedResponse);
+  //   // إرسال الطلب
+  //   final response = await request.send();
 
-  //   print(response.body);
-
-  //   return response.statusCode == 201;
-  // }
-  // static Future<bool> addBid(Bid bid) async {
-  //   var url = Uri.parse('http://192.168.214.174:8000/api/storeApi');
-
-  //   try {
-  //     final response = await http.post(
-  //       url,
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode(bid.toJson()),
-  //     );
-
-  //     print('Status code: ${response.statusCode}');
-  //     print('Response body: ${response.body}');
-
-  //     return response.statusCode == 201;
-  //   } catch (e) {
-  //     print('حدث خطأ أثناء إضافة العرض: $e');
-  //     return false;
+  //   // التحقق من حالة الاستجابة
+  //   if (response.statusCode != 200 && response.statusCode != 201) {
+  //     final respStr = await response.stream.bytesToString();
+  //     throw Exception('فشل في رفع العرض: $respStr');
   //   }
   // }
-  static Future<void> addBid(Bid bid) async {
+  static Future<bool> addBid(
+    Bid bid, {
+    File? technicalFile,
+    String? technicalFileName,
+  }) async {
     final token = await TokenStorage.getToken();
-    final response = await http.post(
-      Uri.parse('http://$ip:8000/api/bid/store'),
-      // headers: {'Content-Type': 'application/json'},
-      headers: {
-        'Content-Type': 'application/json',
+    final uri = Uri.parse('$ip/api/bid/store');
+    final request = http.MultipartRequest('POST', uri)
+      ..headers.addAll({
         'Authorization': 'Bearer $token',
-      },
-      body: json.encode(bid.toJson()),
+        'Accept': 'application/json',
+      });
 
-      // json.encode({
-      //   'contractor_id': bid.contractorId,
-      //   'tender_id': bid.tenderId,
-      //   'bid_amount': bid.bidAmount,
-      //   'completion_time': bid.completionTimeExcepted,
-      //   'technical_matched_count': bid.technicalMatchedCount,
-      // }),
-    );
-    if (response.statusCode != 201) {
-      throw Exception('فشل في إضافة العرض');
+    // حقول العرض
+    bid.toJson().forEach((k, v) => request.fields[k] = v.toString());
+
+    // ملف PDF إن وجد
+    if (technicalFile != null && technicalFileName != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'technical_proposal_pdf',
+          technicalFile.path,
+          filename: technicalFileName,
+          contentType: MediaType('application', 'pdf'),
+        ),
+      );
     }
-    return;
+
+    // الإرسال
+    final streamed = await request.send();
+    final respStr = await streamed.stream.bytesToString();
+    final status = streamed.statusCode;
+
+    try {
+      final body = jsonDecode(respStr);
+      final msg = body['message'] ?? '—';
+
+      if (status == 200 || status == 201) {
+        log('AddBid success: $msg'); // يظهر للمطوّر
+        return true; // يمكنك إعادة true للاستخدام في الواجهة
+      } else {
+        log('AddBid error: $msg'); // تفاصيل للمطوّر
+        return false;
+      }
+    } catch (e) {
+      // لو لم يكن الرد JSON متوقع
+      log('AddBid parse error: $e — raw: $respStr');
+      return false;
+    }
   }
 }

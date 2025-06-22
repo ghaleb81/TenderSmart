@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "953808175072",
+    "project_id": "tendersmart-97e9a",
+    "storage_bucket": "tendersmart-97e9a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953808175072:android:3ce982ca5e0a87f109b585",
+        "android_client_info": {
+          "package_name": "com.example.tendersmart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPr4hSMTP3YGXuTK8z6uYXmY1JpCEfUcc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

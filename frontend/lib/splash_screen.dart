@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:tendersmart/mainScreen.dart';
+import 'package:tendersmart/main.dart';
 // import 'start_screen.dart'; // تأكد من إنشاء هذه الصفحة
 
 class SplashScreen extends StatefulWidget {
@@ -13,15 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => Stack(
-                children: [Image.asset('images/image_1.jpg'), MainScreen()],
-              ),
-        ),
-      );
+      Navigator.pushNamed(context, '/loginScreen');
     });
   }
 
@@ -30,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
         child: Image.asset(
-          'images/image_1.jpg', // ضع اسم الصورة التي رفعتها هنا
+          'images/image_1.jpg',
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
@@ -39,6 +31,45 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+
+// class SplashScreen extends StatefulWidget {
+//   @override
+//   _SplashScreenState createState() => _SplashScreenState();
+// }
+
+// class _SplashScreenState extends State<SplashScreen> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     Timer(Duration(seconds: 3), () {
+//       print('Navigating to login screen...');
+//       Navigator.pushReplacementNamed(context, '/loginScreen');
+//       // Navigator.pushReplacement(
+//       //   context,
+//       //   MaterialPageRoute(
+//       //     builder:
+//       //         (context) => Stack(
+//       //           children: [Image.asset('images/image_1.jpg'), MainScreen()],
+//       //         ),
+//       //   ),
+//       // );
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Center(
+//         child: Image.asset(
+//           'images/image_1.jpg', // ضع اسم الصورة التي رفعتها هنا
+//           fit: BoxFit.cover,
+//           width: double.infinity,
+//           height: double.infinity,
+//         ),
+//       ),
+//     );
+//   }
+// }
 // import 'package:flutter/material.dart';
 // import 'package:tendersmart/login_screen.dart';
 // import 'package:tendersmart/mainScreen.dart';

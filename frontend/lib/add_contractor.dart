@@ -1,26 +1,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:tendersmart/add_bid.dart';
+import 'package:tendersmart/models/Tender.dart';
 import 'package:tendersmart/models/contractor.dart';
 import 'package:tendersmart/services/auth_service.dart';
 import 'package:tendersmart/services/contractor_service.dart';
 import 'package:tendersmart/services/token_storage.dart';
 
-final _companyNameController = TextEditingController();
-final _commercialRegistrationNumberController = TextEditingController();
-final _companyEmailController = TextEditingController();
-final _countryController = TextEditingController();
-final _cityController = TextEditingController();
-final _phoneNumberController = TextEditingController();
-final _yearEstablishedController = TextEditingController();
-final _projectsLast5YearsController = TextEditingController();
-final _publicSectorSuccessfulContractsController = TextEditingController();
-final _websiteUrlController = TextEditingController();
-final _linkedinProfileController = TextEditingController();
-final _companyBioController = TextEditingController();
-final _uploadOfficialDocumentsAmountController = TextEditingController();
-
 class AddContractor extends StatefulWidget {
-  const AddContractor({super.key});
+  AddContractor({super.key, this.tender});
+  Tender? tender;
 
   @override
   State<AddContractor> createState() => _AddContractorState();
@@ -40,8 +29,23 @@ class _AddContractorState extends State<AddContractor> {
   ];
   List<String> selectedQualityCertificates = [];
 
+  final _companyNameController = TextEditingController();
+  final _commercialRegistrationNumberController = TextEditingController();
+  final _companyEmailController = TextEditingController();
+  final _countryController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _yearEstablishedController = TextEditingController();
+  final _projectsLast5YearsController = TextEditingController();
+  final _publicSectorSuccessfulContractsController = TextEditingController();
+  final _websiteUrlController = TextEditingController();
+  final _linkedinProfileController = TextEditingController();
+  final _companyBioController = TextEditingController();
+  // final _uploadOfficialDocumentsAmountController = TextEditingController();
+
   @override
   void dispose() {
+    super.dispose();
     _companyNameController.dispose();
     _commercialRegistrationNumberController.dispose();
     _companyEmailController.dispose();
@@ -54,16 +58,13 @@ class _AddContractorState extends State<AddContractor> {
     _websiteUrlController.dispose();
     _linkedinProfileController.dispose();
     _companyBioController.dispose();
-    _uploadOfficialDocumentsAmountController.dispose();
-    super.dispose();
+    // _uploadOfficialDocumentsAmountController.dispose();
   }
 
   void _saveContractor() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❗️ يرجى تعبئة جميع الحقول الإلزامية بشكل صحيح'),
-        ),
+        SnackBar(content: Text('يرجى تعبئة جميع الحقول الإلزامية بشكل صحيح')),
       );
       return;
     }
@@ -73,6 +74,7 @@ class _AddContractorState extends State<AddContractor> {
     });
 
     try {
+      final userId = int.tryParse(await TokenStorage.getUserrId() ?? '');
       final contractor = Contractor(
         companyName: _companyNameController.text.trim(),
         commercialRegistrationNumber:
@@ -91,24 +93,35 @@ class _AddContractorState extends State<AddContractor> {
         websiteUrl: _websiteUrlController.text.trim(),
         linkedinProfile: _linkedinProfileController.text.trim(),
         companyBio: _companyBioController.text.trim(),
-        userId: int.tryParse(await TokenStorage.getUserrId() ?? ''),
+        userId: userId,
       );
+      // log('$userId');
+      // print(
+      //   selectedQualityCertificates.runtimeType,
+      // ); // يجب أن تطبع: List<String>
+
+      // log('${contractor.toJsonCont()}');
 
       bool success = await ContractorService.saveContractorInfo(contractor);
 
       if (success) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('✅ تم حفظ البيانات بنجاح')));
-        Navigator.pushReplacementNamed(context, '/contractorProfile');
+        ).showSnackBar(SnackBar(content: Text('تم حفظ البيانات بنجاح')));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddBid(tender: widget.tender),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('❌ فشل في حفظ البيانات')));
+        ).showSnackBar(SnackBar(content: Text('فشل في حفظ البيانات')));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ خطأ أثناء الحفظ: ${e.toString()}')),
+        SnackBar(content: Text('خطأ أثناء الحفظ: ${e.toString()}')),
       );
     } finally {
       setState(() {
@@ -253,11 +266,11 @@ class _AddContractorState extends State<AddContractor> {
                 false,
                 maxLines: 3,
               ),
-              _buildTextField(
-                _uploadOfficialDocumentsAmountController,
-                'تحميل الوثائق الرسمية',
-                false,
-              ),
+              // _buildTextField(
+              //   _uploadOfficialDocumentsAmountController,
+              //   'تحميل الوثائق الرسمية',
+              //   false,
+              // ),
               SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -737,9 +750,15 @@ class _ContractorInformationState extends State<ContractorInformation> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // Image.asset(
+            //   'images/image_1.jpg',
+            //   width: double.infinity,
+            //   fit: BoxFit.cover,
+            // ),
             Image.asset(
               'images/image_1.jpg',
               width: double.infinity,
+              height: 160,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 20),
@@ -932,7 +951,7 @@ class CodeVerificationScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 final code = codeController.text;
-                print('Verification Code: $code');
+                log('Verification Code: $code');
               },
               child: const Text('VERIFY Code'),
             ),

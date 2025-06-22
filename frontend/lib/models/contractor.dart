@@ -88,7 +88,7 @@ class Contractor {
       "country": country,
       "city": city,
       "phone_number": phoneNumber,
-      "year_established": DateTime.tryParse(yearEstablished.toString()),
+      "year_established": yearEstablished,
       "projects_last_5_years": projectsLast5Years,
       "quality_certificates": qualityCertificates,
       "public_sector_successful_contracts": publicSectorSuccessfulContracts,

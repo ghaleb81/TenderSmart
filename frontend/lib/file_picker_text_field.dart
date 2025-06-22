@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 class FilePickerTextField extends StatefulWidget {
   final void Function(File file) onFilePicked;
 
-  const FilePickerTextField({super.key, required this.onFilePicked});
+  const FilePickerTextField({super.key, required this.onFilePicked, required String label});
 
   @override
   State<FilePickerTextField> createState() => _FilePickerTextFieldState();

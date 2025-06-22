@@ -1,128 +1,92 @@
-import 'package:flutter/material.dart';
-import 'package:tendersmart/login_screen.dart';
-import 'package:tendersmart/models/Bid.dart';
-import 'package:tendersmart/models/Tender.dart';
-import 'package:tendersmart/models/contractor.dart';
-import 'package:tendersmart/tender_details.dart';
-import 'package:tendersmart/tenders.dart';
+// import 'package:flutter/material.dart';
+// import 'package:tendersmart/add_bid.dart';
+// import 'package:tendersmart/login_screen.dart';
+// import 'package:tendersmart/models/Bid.dart';
+// import 'package:tendersmart/models/Tender.dart';
+// import 'package:tendersmart/models/contractor.dart';
+// import 'package:tendersmart/new_tender.dart';
+// import 'package:tendersmart/splash_screen.dart';
+// import 'package:tendersmart/tender_details.dart';
+// import 'package:tendersmart/tenders.dart';
+// import 'package:tendersmart/tenders_list.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+// class MainScreen extends StatefulWidget {
+//   const MainScreen({super.key});
 
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
+//   @override
+//   State<MainScreen> createState() => _MainScreenState();
+// }
 
-class _MainScreenState extends State<MainScreen> {
-  Widget? activeScreen;
-  final List<Tender> _currentTenders = [
-    Tender(
-      id: 'jj',
-      title: 'إدارة مقصف كلية الهندسة المعلوماتية',
-      descripe:
-          'كلية المعلوماتية التابعة لجامعة الشام الخاصة بحاجة لاستثمار للمقصف بداخلها وادارة خدمة الطلاب على مدار دوام الكلية من الساعة 8 صباحاً حتى 3 عصراً',
-      location: 'ريف دمشق_التل',
-      implementationPeriod: 15,
-      numberOfTechnicalConditions: 3,
-      registrationDeadline: DateTime(2025, 23, 4),
-      stateOfTender: StateOfTender.opened,
-      // expectedStartTime: DateTime(2025, 12, 4),
-      budget: 400000.33,
-    ),
-    Tender(
-      id: 'jj',
-      title: 'إدارة المركز الطبي في جامعة الشام الخاصة',
-      descripe:
-          'جامعة الشام الخاصة بحاجة لاستثمار للمركز الطبي بداخلها وادارة خدمة المرضى على مدار دوام الكلية من الساعة 8 صباحاً حتى 4 عصراً',
-      location: 'ريف دمشق_التل',
-      implementationPeriod: 20,
-      numberOfTechnicalConditions: 7,
-      registrationDeadline: DateTime(2025, 23, 4),
-      stateOfTender: StateOfTender.opened,
-      // expectedStartTime: DateTime(2025, 23, 4),
-      budget: 33333.222,
-    ),
-    Tender(
-      id: 'xx',
-      title: 'إدارة مكتبة في كلية الطب البشري',
-      descripe: 'descripe',
-      location: 'ريف دمشق_التل',
-      implementationPeriod: 10,
-      numberOfTechnicalConditions: 9,
-      registrationDeadline: DateTime(2025, 23, 4),
-      stateOfTender: StateOfTender.opened,
-      // expectedStartTime: DateTime(2025, 23, 4),
-      budget: 2220022,
-    ),
-    Tender(
-      id: 'bb',
-      title: 'توريد مستلزمات طبية لكلية طب الأسنان',
-      descripe: 'descripe',
-      location: 'دمشق_المزرعة',
-      implementationPeriod: 28,
-      numberOfTechnicalConditions: 5,
-      registrationDeadline: DateTime(2025, 23, 4),
-      stateOfTender: StateOfTender.opened,
-      // expectedStartTime: DateTime(2025, 23, 4),
-      budget: 3333333,
-    ),
-  ];
-  // final List<Bid> bidContractor = [
-  //   Bid(bidAmount: 3222, completionTimeExcepted: 2, technicalMatchedCount: 5),
-  //   Bid(bidAmount: 444, completionTimeExcepted: 3, technicalMatchedCount: 3),
-  //   Bid(bidAmount: 111, completionTimeExcepted: 4, technicalMatchedCount: 9),
-  // ];
+// class _MainScreenState extends State<MainScreen> {
+//   Widget? activeScreen;
+//   @override
+//   void initState() {
+//     super.initState();
+//     activeScreen = LoginScreen(
+//       switchScreenToTenders: switchScreenToTenders,
+//       // addContractor: _addContractor,
+//     );
+//   }
 
-  // void _addContractor(Contractor contractor) {
-  //   setState(() {
-  //     contractorList.add(contractor);
-  //   });
-  // }
+//   void switchScreenToTenders() {
+//     setState(() {
+//       activeScreen = Tenders(
+//         // currentTenders: _currentTenders,
+//         // bids: bidContractor,
+//         // addBid: _addBid,
+//         // addContractor: _addContractor,
+//         switchScreenToTenders: switchScreenToTenders,
+//         // currentUserRole: currentUserRole,
+//       );
+//     });
+//   }
 
-  @override
-  void initState() {
-    super.initState();
-    activeScreen = LoginScreen(
-      switchScreenToTenders: switchScreenToTenders,
-      // addContractor: _addContractor,
-    );
-  }
+//   // void switchScreenToTenderDetails() {
+//   //   setState(() {
+//   //     activeScreen = TenderDetails(
+//   //       // tender: _currentTenders[0],
+//   //       // bids: bidContractor,
+//   //       // addBid: _addBid,
+//   //       // currentUserRole: currentUserRole,
+//   //     );
+//   //   });
+//   // }
 
-  void switchScreenToTenders() {
-    setState(() {
-      activeScreen = Tenders(
-        currentTenders: _currentTenders,
-        // bids: bidContractor,
-        // addBid: _addBid,
-        // addContractor: _addContractor,
-        switchScreenToTenders: switchScreenToTenders,
-        // currentUserRole: currentUserRole,
-      );
-    });
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       locale: const Locale('ar'),
+//       // supportedLocales: const [Locale('ar', ''), Locale('en', '')],
+//       // localizationsDelegates: [
+//       //   GlobalMaterialLocalizations.delegate,
+//       //   GlobalWidgetsLocalizations.delegate,
+//       //   GlobalCupertLocalizations.delegate,
 
-  void switchScreenToTenderDetails() {
-    setState(() {
-      activeScreen = TenderDetails(
-        tender: _currentTenders[0],
-        // bids: bidContractor,
-        // addBid: _addBid,
-        // currentUserRole: currentUserRole,
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.indigo, Colors.purpleAccent],
-          ),
-        ),
-        child: activeScreen,
-      ),
-    );
-  }
-}
+//       // ],
+//       title: 'Tender App',
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//         fontFamily: 'Cairo', // (اختياري لخط عربي أجمل)
+//       ),
+//       initialRoute: '/',
+//       routes: {
+//         '/': (context) => SplashScreen(),
+//         '/login': (context) => MainScreen(),
+//         '/tendersScreen': (context) => TenderListPage(),
+//         '/add_Bid': (context) => AddBid(),
+//         '/newTender': (context) => NewTender(),
+//       },
+//       home: Expanded(
+//         child: Container(
+//           decoration: BoxDecoration(
+//             gradient: LinearGradient(
+//               colors: [Colors.indigo, Colors.purpleAccent],
+//             ),
+//           ),
+//           child: activeScreen,
+//         ),
+//       ),
+//     );
+//   }
+// }

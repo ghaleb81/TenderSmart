@@ -5,19 +5,42 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="29c713bf-6e05-4b94-ab87-7562ab46fd60" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/android/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/android/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/android/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/android/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/android/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/add_bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/add_bid.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/add_contractor.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/add_contractor.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/bid_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/bid_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/bid_list_of_contractor.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/bid_list_of_contractor.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/contractor_profile_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/contractor_profile_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/file_picker_text_field.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/file_picker_text_field.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/mainScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/mainScreen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/Bid.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/Bid.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/models/Tender.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/Tender.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/models/contractor.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/models/contractor.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/new_tender.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/new_tender.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/saved_tender_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/saved_tender_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/services/auth_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/auth_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/services/bid_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/bid_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/services/contractor_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/contractor_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/services/tender_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/tender_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/services/token_storage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/services/token_storage.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/splash_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/tender_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/tender_details.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/tenders.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/tenders.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/lib/tenders_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/tenders_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

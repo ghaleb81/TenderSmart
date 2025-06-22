@@ -24,13 +24,15 @@ class _SavedTenderListState extends State<SavedTenderList> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.indigo,
         title: const Text(
-          'المناقصات الحالية',
+          // 'المناقصات المحفوظة',
+          'Saved Tenders',
           style: TextStyle(
             // backgroundColor: Colors.tealAccent,
-            color: Colors.black,
+            color: Colors.white,
             fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
 
@@ -44,7 +46,7 @@ class _SavedTenderListState extends State<SavedTenderList> {
           } else if (snapshot.hasError) {
             return Center(child: Text('خطأ : ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('لا توجد مناقصات حالياً'));
+            return Center(child: Text('لا توجد مناقصات محفوظة'));
           } else {
             final tenders = snapshot.data!;
             return ListView.builder(
@@ -53,98 +55,83 @@ class _SavedTenderListState extends State<SavedTenderList> {
                 final tender = tenders[index];
                 return Expanded(
                   child: Card(
-                    color: Colors.blue[200],
-                    margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                    elevation: 4,
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(15),
                     ),
+                    color:
+                        tender.stateOfTender.name == 'opened'
+                            ? Colors.green[100]
+                            : Colors.red[100],
+                    elevation: 3,
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(16),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '${tender.title}',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Center(
+                            child: Text(
+                              tender.title,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              Text(
-                                ' _${index + 1}',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              // Text(
-                              //   '${tender.title}_${index + 1}',
-                              //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                              // ),
-                            ],
+                            ),
                           ),
                           SizedBox(height: 8),
-                          Padding(
-                            padding: EdgeInsets.all(12),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        textAlign: TextAlign.center,
-                                        " ${tender.descripe}",
-                                        softWrap: true,
-                                        overflow: TextOverflow.visible,
-                                      ),
+                          Text(
+                            tender.descripe,
+                            style: TextStyle(fontSize: 14),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Column(
+                                children: [
+                                  Icon(
+                                    Icons.announcement,
+                                    color: Colors.blue[800],
+                                  ),
+                                  Text(tender.stateOfTender.name),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    color: Colors.orange[800],
+                                  ),
+                                  Text(
+                                    tender.registrationDeadline
+                                        .toString()
+                                        .split(' ')[0],
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.info,
+                                      color: Colors.indigo[800],
                                     ),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "${tender.stateOfTender.name}: الحالة",
-                                    ),
-                                    Icon(Icons.announcement),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        ElevatedButton.icon(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (context) => TenderDetails(
-                                                      tender: tenders[index],
-                                                      // isFavorite: true,
-                                                      // bids: widget.bids,
-                                                      //  addBid: widget.addBid,
-                                                    ),
-                                              ),
-                                            );
-                                          },
-                                          icon: Icon(Icons.details),
-                                          label: Text('تفاصيل المناقصة'),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  TenderDetails(tender: tender),
                                         ),
-                                      ],
-                                    ),
-                                    SizedBox(width: 10),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                      );
+                                    },
+                                  ),
+                                  Text("Details"),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
