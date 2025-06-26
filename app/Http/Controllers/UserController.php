@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Google_Client;
+use Illuminate\Support\Str;
+
 
 class UserController extends Controller
 {
@@ -45,7 +48,7 @@ $token=$user->createToken('auth_token')->plainTextToken;
         'access_token' => $token,
         'token_type' => 'Bearer',
         'role'=>$request->user()->role,
-
+        'user_id'=>$request->user()->id
     ]);
 // return response()->json([
 //         'message'=>'Token created',
@@ -65,14 +68,46 @@ return response()->json([
 ],200);
  }
 
- public function getNotifications(Request $request)
+public function googleLogin(Request $request)
 {
-    $user = $request->user();
-    $notifications = $user->notifications()->latest()->get();
+    $request->validate([
+        'idToken' => 'required|string',
+    ]);
+
+    $idToken = $request->idToken;
+
+    $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+    $payload = $client->verifyIdToken($idToken);
+
+    if (!$payload) {
+        return response()->json(['error' => 'Invalid Google ID token'], 401);
+    }
+
+    // تحقق من التحقق من البريد
+    if (!isset($payload['email_verified']) || $payload['email_verified'] !== true) {
+        return response()->json(['error' => 'Email not verified by Google'], 403);
+    }
+
+    $email = $payload['email'];
+    $name = $payload['name'] ?? 'Google User';
+
+    // جلب أو إنشاء المستخدم
+    $user = User::firstOrCreate(
+        ['email' => $email],
+        [
+            'name' => $name,
+            'password' => Hash::make(Str::random(16)), // كلمة سر عشوائية
+        ]
+    );
+
+    $token = $user->createToken('auth_token')->plainTextToken;
 
     return response()->json([
-        'notifications' => $notifications
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+        'user' => $user,
     ]);
 }
+
 
 }

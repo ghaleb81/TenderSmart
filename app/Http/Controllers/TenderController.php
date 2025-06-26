@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bid;
 use App\Models\Tender;
 use App\Models\User;
 use App\Notifications\NewTenderNotification;
 use App\Notifications\WinnerSelected;
 use App\Services\FirebaseService;
+use App\Services\HelloSignService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -22,29 +24,7 @@ class TenderController extends Controller
 
    public function indexApi(Request $request)
 {
-    $query = Tender::query();
-
-    if ($request->filled('keyword')) {
-        $keyword = $request->input('keyword');
-        $query->where(function ($q) use ($keyword) {
-            $q->where('tender_title', 'like', "%$keyword%")
-              ->orWhere('tender_description', 'like', "%$keyword%");
-        });
-    }
-
-    if ($request->filled('الموقع')) {
-        $query->where('location', $request->input('الموقع'));
-    }
-
-    if ($request->filled('السعر')) {
-        $query->where('estimated_budget', '>=', $request->input('السعر'));
-    }
-
-    if ($request->filled('اخر وقت تقديم')) {
-        $query->whereDate('submission_deadline', '<=', $request->input('اخر وقت تقديم'));
-    }
-
-    $tenders = $query->orderBy('submission_deadline', 'desc')->paginate(10);
+    $tenders = Tender::orderBy('submission_deadline', 'desc')->paginate(20);
 
     return response()->json([
         'tenders' => $tenders
@@ -116,6 +96,10 @@ class TenderController extends Controller
         );
     
 }
+    $tender->attached_file_url = $tender->attached_file
+        ? asset('storage/' . $tender->attached_file)
+        : null;
+
         return response()->json([
             'message' => 'تم إنشاء المناقصة بنجاح.',
             'data' => $tender,
@@ -196,7 +180,7 @@ class TenderController extends Controller
 
         $tender->update($data);
 
-        return response()->json(["message"=>"The tender updated",'dataa:'=> $tender],200);
+        return response()->json(["message"=>"تم تحديث المناقصة بنجاح.",'dataa:'=> $tender],200);
     }
 
     /**
@@ -223,36 +207,140 @@ class TenderController extends Controller
         }
 
         $tender->delete();
-        return response()->json(["message"=>"The tender deleted"],200);
+        return response()->json(["message"=>"تم حذف المناقصة بنجاح."],200);
     }
 
    public function selectWinner($tenderId)
 {
-    // جلب المناقصة
-    $tender = Tender::with('bids')->findOrFail($tenderId);
+    //  جلب المناقصة والعروض والمقاول المرتبط بكل عرض
+    $tender = Tender::with('bids.contractor.user')->findOrFail($tenderId);
 
-    // التأكد أنه في عروض
+    //  التأكد أن المناقصة مغلقة
+    if ($tender->status !== 'closed') {
+        return response()->json(['message' => 'لا يمكن اختيار الفائز إلا بعد إغلاق المناقصة.'], 400);
+    }
+
+    //  التأكد من وجود عروض
     if ($tender->bids->isEmpty()) {
         return response()->json(['message' => 'لا توجد عروض لهذه المناقصة.'], 404);
     }
 
-    // جلب العرض بأعلى final_bid_score
+    //  اختيار العرض بأعلى final_bid_score
     $winningBid = $tender->bids->sortByDesc('final_bid_score')->first();
 
-    // ربط العرض الفائز بالمناقصة
+    //  تحديث المناقصة بربط العرض الفائز
     $tender->winner_bid_id = $winningBid->id;
     $tender->save();
 
-    // إرسال إشعار للمقاول الفائز (اختياري)
-    // Notification::send($winningBid->contractor->user, new WinnerNotification($tender));
- // إرسال الإشعار للمقاول الفائز
+    // إرسال إشعار Firebase للمقاول الفائز
     $contractorUser = $winningBid->contractor->user;
-    $contractorUser->notify(new WinnerSelected($tender));
-    return response()->json([   
-        'message' => 'تم اختيار العرض الفائز بنجاح.',
+
+    if ($contractorUser->device_token) {
+        app(FirebaseService::class)->sendNotification(
+            $contractorUser->device_token,
+            ' تهانينا! فزت بالمناقصة',
+            "لقد تم اختيار عرضك كعرض فائز في مناقصة: {$tender->title}"
+        );
+    }
+
+    //  إنشاء العقد وإرساله للتوقيع
+    app(ContractorController::class)
+        ->sendContractToSign($winningBid->contractor_id, $tender->id, $winningBid->id, app(\App\Services\HelloSignService::class));
+
+    return response()->json([
+        'message' => 'تم اختيار الفائز وإرسال إشعار وإنشاء عقد.',
         'winner_bid' => $winningBid
     ]);
 }
 
+public function setManualWinner(Request $request)
+{
+    $request->validate([
+        'tender_id' => 'required|exists:tenders,id',
+        'bid_id' => 'required|exists:bids,id',
+    ]);
 
+    $tender = Tender::with('bids')->find($request->tender_id);
+
+    if (!$tender) {
+        return response()->json(['message' => 'المناقصة غير موجودة'], 404);
+    }
+
+    if ($tender->status !== 'closed') {
+        return response()->json(['message' => 'لا يمكن اختيار فائز قبل إغلاق المناقصة.'], 400);
+    }
+
+    if ($tender->bids->isEmpty()) {
+        return response()->json(['message' => 'لا توجد عروض مرتبطة بهذه المناقصة.'], 404);
+    }
+
+    $bid = Bid::find($request->bid_id);
+
+    if (!$bid) {
+        return response()->json(['message' => 'العرض غير موجود'], 404);
+    }
+
+    if ($bid->tender_id !== $tender->id) {
+        return response()->json(['message' => 'العرض لا يتبع لهذه المناقصة.'], 400);
+    }
+
+    // تعيين العرض كفائز يدويًا
+    $tender->manual_winner_bid_id = $bid->id;
+    $tender->save();
+
+    // إرسال إشعار للمقاول الفائز
+    if ($bid->contractor && $bid->contractor->user && $bid->contractor->user->device_token) {
+        app(FirebaseService::class)->sendNotification(
+            $bid->contractor->user->device_token,
+            'تهانينا! فزت بالمناقصة',
+            "لقد تم اختيار عرضك كعرض فائز في مناقصة: {$tender->title}"
+        );
+    }
+
+//     // إرسال العقد للتوقيع
+// $contractController = app(ContractorController::class);
+// $signService = app(\App\Services\HelloSignService::class);
+
+// $response = $contractController->sendContractToSign(
+//     $bid->contractor_id,
+//     $tender->id,
+//     $bid->id,
+//     $signService
+// );
+
+// // استخرج رابط التوقيع لتسليمه للواجهة
+// $signingUrl = $response->getData(true)['signing_url'] ?? null;
+
+// return response()->json([
+//     'message' => 'تم تعيين العرض الفائز يدويًا بنجاح، وتم إرسال العقد للتوقيع.',
+//     'signing_url' => $signingUrl
+// ]);
+
+// }
+
+
+try {
+    // استدعاء الكونترولر وخدمة HelloSign
+    $contractController = app(ContractorController::class);
+    $signService = app(HelloSignService::class);
+
+    // إرسال العقد للتوقيع
+    $response = $contractController->sendContractToSign(
+        $bid->contractor_id,
+        $tender->id,
+        $bid->id,
+        $signService
+    );
+
+    return response()->json([
+        'message' => 'تم تعيين العرض الفائز يدويًا بنجاح، وتم إرسال العقد إلى بريد المقاول للتوقيع.',
+        'email' => $bid->contractor->user->email,
+        'hellosign_response' => $response 
+    ]);
+
+} catch (\Exception $e) {
+    return response()->json([
+        'error' => 'حدث خطأ أثناء إرسال العقد للتوقيع: ' . $e->getMessage()
+    ], 500);
 }
+}}

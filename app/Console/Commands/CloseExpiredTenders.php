@@ -29,8 +29,7 @@ class CloseExpiredTenders extends Command
     public function handle()
 {
     $now = Carbon::now();
-    Log::info("⏱️ تم تشغيل الأمر في: $now"); // ✅ سطر للتأكد من التشغيل
-
+    Log::info(" تم تشغيل الأمر في: $now"); 
     $expiredTenders = Tender::where('status', 'opened')
         ->where('submission_deadline', '<', $now)
         ->get();

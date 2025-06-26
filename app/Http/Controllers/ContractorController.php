@@ -6,6 +6,7 @@ use App\Models\Bid;
 use App\Models\Contractor;
 use App\Models\ContractorSignature;
 use App\Models\Tender;
+use App\Services\HelloSignService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -16,12 +17,27 @@ use Illuminate\Support\Facades\Http;
 
 class ContractorController extends Controller
 {
-    /**
-     * Show the contractor form.
-     * 
-     * 
-     */
-    public function show(Request $request){
+     public function index(Request $request)
+{
+    $contractors = Contractor::all();
+
+    return response()->json([
+        'Contractors' => $contractors
+    ], 200);
+}
+    public function showByUserId($id)
+{
+    $contractor = Contractor::with('bids')->where('user_id', $id)->first();
+
+    if (!$contractor) {
+        return response()->json(['message' => 'المقاول غير موجود'], 404);
+    }
+
+    return response()->json([
+        'contractor' => $contractor
+    ], 200);
+}
+public function show(Request $request){
     $user=$request->user();
     $contractor = Contractor::with('bids')->where('user_id', $user->id)->first();
         return response()->json(["The Detail of Contactor:"=>$contractor],200);
@@ -95,51 +111,196 @@ public function generateContractPdf($contractorId, $tenderId, $bidId)
 
     $mpdf->WriteHTML($html);
 
-    return $mpdf->Output('contract.pdf', 'I');
-}
+    $pdfPath = storage_path("app/contracts/contract_{$bidId}.pdf");
 
-public function sendToSign($contractorId, $tenderId, $bidId)
-{
-    $contractor = Contractor::with('user')->findOrFail($contractorId);
-    $tender = Tender::findOrFail($tenderId);
-    $bid = Bid::findOrFail($bidId);
-
-    // توليد PDF وتخزينه مؤقتاً
-    $html = view('contracts.contracts', compact('contractor', 'tender', 'bid'))->render();
-    $pdfPath = storage_path("app/contracts/contract_{$bid->id}.pdf");
-
-    $mpdf = new \Mpdf\Mpdf();
-    $mpdf->WriteHTML($html);
     $mpdf->Output($pdfPath, \Mpdf\Output\Destination::FILE);
 
-    // إرسال الملف إلى Docsign API
-    $response = Http::withToken('YOUR_DOCSIGN_API_TOKEN')
-        ->attach('file', file_get_contents($pdfPath), 'contract.pdf')
-        ->post('https://api.docsign.com/send', [
-            'recipient_name' => $contractor->user->name,
-            'recipient_email' => $contractor->user->email,
-            'subject' => 'عقد تنفيذ المناقصة',
-            'message' => 'يرجى توقيع العقد المرفق.'
-        ]);
+    return $pdfPath; // ترجع مسار الملف عشان تستخدمه بعدين
+}
 
-    if ($response->successful()) {
-        $data = $response->json();
+// public function sendContractToSign($contractorId, $tenderId, $bidId, HelloSignService $signService)
+// {
+//     // 1. توليد مسار ملف PDF (عقد المناقصة)
+//     $pdfPath = $this->generateContractPdf($contractorId, $tenderId, $bidId);
 
-        // حفظ الرابط أو ID في قاعدة البيانات
-        ContractorSignature::create([
-            'contractor_id' => $contractorId,
-            'tender_id' => $tenderId,
-            'bid_id' => $bidId,
-            'signing_url' => $data['signing_url'], // أو حسب الاستجابة الفعلية
-            'status' => 'sent',
-        ]);
+//     // 2. جلب المقاول والمستخدم التابع له
+//     $contractor = Contractor::with('user')->findOrFail($contractorId);
+//     $user = $contractor->user;
 
-        return redirect($data['signing_url']); // إعادة التوجيه للتوقيع
+//     // 3. إرسال العقد إلى HelloSign والحصول على رد التوقيع
+//     $response = $signService->sendEmbeddedSignatureRequest(
+//         $user->email,
+//         $user->name,
+//         $pdfPath
+//     );
+
+//     // 4. استخراج signature_id من الرد
+//     $signatureId = $response['signature_request']['signatures'][0]['signature_id'] ?? null;
+
+//     // 5. توليد رابط التوقيع
+//     $signingUrl = $signService->getEmbeddedSignUrl($signatureId);
+
+//     // 6. حفظ سجل التوقيع في قاعدة البيانات
+//     \App\Models\ContractorSignature::create([
+//         'contractor_id' => $contractorId,
+//         'tender_id'     => $tenderId,
+//         'bid_id'        => $bidId,
+//         'signing_url'   => $signingUrl,
+//         'status'        => 'sent',
+//     ]);
+
+//     // 7. إرجاع رابط التوقيع (أو redirect أو إرسال لـ front-end)
+//     return response()->json([
+//         'signing_url' => $signingUrl,
+//         'signature_id' => $signatureId,
+//     ]);
+// }
+public function sendContractToSign($contractorId, $tenderId, $bidId, HelloSignService $signService)
+{
+    $contractor = Contractor::find($contractorId);
+    if (!$contractor) {
+        return response()->json(['message' => 'المقاول غير موجود'], 404);
     }
 
-    return back()->with('error', 'فشل إرسال العقد للتوقيع.');
+    $user = $contractor->user;
+    if (!$user || !$user->email) {
+        return response()->json(['message' => 'البريد الإلكتروني للمقاول غير متوفر'], 400);
+    }
+
+    $filePath = storage_path('app/contracts/contract_' . $bidId . '.pdf');
+
+    if (!file_exists($filePath)) {
+        return response()->json(['message' => 'ملف العقد غير موجود'], 404);
+    }
+
+  try {
+    $response = $signService->sendSignatureRequest(
+        $user->email,
+        $user->name ?? 'المقاول',
+        $filePath
+    );
+
+    $signatureRequest = $response->getSignatureRequest();
+    $signatureRequestId = $signatureRequest->getSignatureRequestId();
+
+    return response()->json([
+        'message' => 'تم إرسال العقد للتوقيع بنجاح.',
+        'signature_request_id' => $signatureRequestId,
+    ]);
+} catch (\Exception $e) {
+    return response()->json(['message' => 'حدث خطأ أثناء إرسال العقد: ' . $e->getMessage()], 500);
+}
 }
 
+
+//   public function sendToSign($contractorId, $tenderId, $bidId, HelloSignService $signService)
+// {
+//     $contractor = Contractor::with('user')->findOrFail($contractorId);
+//     $tender = Tender::findOrFail($tenderId);
+//     $bid = Bid::findOrFail($bidId);
+
+//     // 1. توليد العقد PDF وتخزينه مؤقتًا
+//     $html = view('contracts.contracts', compact('contractor', 'tender', 'bid'))->render();
+//     $pdfPath = storage_path("app/contracts/contract_{$bid->id}.pdf");
+
+//     $mpdf = new \Mpdf\Mpdf();
+//     $mpdf->WriteHTML($html);
+//     $mpdf->Output($pdfPath, \Mpdf\Output\Destination::FILE);
+
+//     // 2. إرسال طلب التوقيع المضمّن عبر خدمة HelloSign
+//     $response = $signService->sendEmbeddedSignatureRequest(
+//         $contractor->user->email,
+//         $contractor->user->name,
+//         $pdfPath
+//     );
+
+//     // 3. استخراج الـ signatureId من الاستجابة
+//     $signatures = $response->getSignatureRequest()->getSignatures();
+//     $signatureId = $signatures[0]->getSignatureId();
+
+//     // 4. الحصول على رابط التوقيع المضمّن (Embedded Sign URL)
+//     $signingUrl = $signService->getEmbeddedSignUrl($signatureId);
+
+//     // 5. حفظ البيانات في قاعدة البيانات
+//     ContractorSignature::create([
+//         'contractor_id' => $contractorId,
+//         'tender_id' => $tenderId,
+//         'bid_id' => $bidId,
+//         'signing_url' => $signingUrl,
+//         'status' => 'sent',
+//     ]);
+
+//     // 6. عرض صفحة التوقيع داخل iframe أو إعادة توجيه للرابط
+//     return view('contracts.sign', ['signUrl' => $signingUrl]);
+// }
+
+
+
+// public function testSendContractToSign()
+// {
+//     $contractorId = 1;  // استبدل بالقيمة المناسبة
+//     $tenderId = 1;      // استبدل بالقيمة المناسبة
+//     $bidId = 1;         // استبدل بالقيمة المناسبة
+
+//     $signService = app(\App\Services\HelloSignService::class);
+
+//     $pdfPath = $this->generateContractPdf($contractorId, $tenderId, $bidId);
+
+//     $contractor = \App\Models\Contractor::with('user')->findOrFail($contractorId);
+
+//     // 1. أرسل طلب التوقيع
+//     $response = $signService->sendEmbeddedSignatureRequest(
+//         $contractor->user->email,
+//         $contractor->user->name,
+//         $pdfPath
+//     );
+
+//     // 2. استخرج signature_id
+//     $signatureId = $response['signature_request']['signatures'][0]['signature_id'] ?? null;
+
+//     if (!$signatureId) {
+//         return response()->json([
+//             'error' => 'لم يتم استخراج signature_id'
+//         ], 500);
+//     }
+
+//     // 3. استدعِ رابط التوقيع باستخدام signature_id
+//     $signingUrl = $signService->getEmbeddedSignUrl($signatureId);
+
+//     return response()->json([
+//         'message' => 'تم إرسال طلب التوقيع بنجاح',
+//         'signing_url' => $signingUrl,
+//         'signature_id' => $signatureId,
+//         'user_name' => $contractor->user->name
+//     ]);
+// }
+
+
+
+
+    protected $helloSign;
+
+    public function __construct(HelloSignService $helloSign)
+    {
+        $this->helloSign = $helloSign;
+    }
+
+    // public function downloadSignedContract($signatureRequestId, $bidId)
+    // {
+    //     try {
+    //         $filePath = $this->helloSign->downloadSignedContract($signatureRequestId, $bidId);
+
+    //         return response()->download($filePath, "signed_contract_{$bidId}.pdf", [
+    //             'Content-Type' => 'application/pdf'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'message' => 'خطأ في تحميل العقد: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 }
+
+
 
 
