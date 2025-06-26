@@ -19,9 +19,7 @@ Route::get('/tenders/{tender}/evaluate', [BidController::class, 'evaluate'])->na
 
 Route::post('/tenders/{tender}/bids', [BidController::class, 'store'])->name('bids.store');
 
-
-Route::get('/admin/reports', [ReportController::class, 'index']);
-// Route::get('/test', function () {
-//     return view('test');
-// });
-Route::get('admin/reports/performance', [ReportController::class, 'performance'])->name('reports.performance');
+Route::prefix('admin/report')->name('admin.report.')->group(function () {
+    Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
+    Route::get('/performance', [ReportController::class, 'performance'])->name('performance');
+});

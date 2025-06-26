@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DeviceTokenController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SignatureController;
 use Illuminate\Http\Request;
 use App\Http\Middleware\CheckUser;
@@ -21,10 +22,16 @@ Route::get('/user', function (Request $request) {
 Route::post('register',[UserController::class,'register']);
 Route::post('login',[UserController::class,'login']);
 Route::post('logout',[UserController::class,'logout'])->middleware('auth:sanctum');
+Route::post('/google-login', [UserController::class, 'googleLogin']);
+
 
 Route::middleware('auth:sanctum')->post('/save-device-token', [DeviceTokenController::class, 'save']);
-
-
+         
+Route::middleware(['auth:sanctum', CheckUser::class . ':admin'])->group(function () {
+    Route::get('report/summary', [ReportController::class, 'summary']);
+});
+        Route::get('report/trends', [ReportController::class, 'priceTrends']);
+        Route::get('report/contractor-performance', [ReportController::class, 'contractorStats']);
 
 
 
@@ -66,7 +73,6 @@ Route::middleware('auth:sanctum')->group(function(){
               Route::put('/update/{id}',[TenderController::class,'updateApi']); 
 
                Route::delete ('destroy/{id}',[TenderController::class,'destroyApi']);
-               Route::post('{id}/winner', [TenderController::class, 'selectWinner']);
                Route::post('/winner', [TenderController::class, 'setManualWinner']);
 
                Route::post('{tender}/evaluate', [BidController::class, 'evaluateBidsApi']);
@@ -94,8 +100,13 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('/update/{id}', [BidController::class, 'updateApi']); 
         Route::middleware([CheckUser::class.':admin,committee'])->group(function(){
 
-        Route::get('/show/{id}',[BidController::class,'show']);
-        Route::get('/index',[BidController::class,'index']);
+           Route::get('/index', [BidController::class, 'index']);
+
+            Route::get('/show/{id}',[BidController::class,'show']);
+       Route::middleware([CheckUser::class.':admin'])->group(function () {
+           Route::get('/index', [BidController::class, 'index']);
+});
+
     });
 
                  
@@ -108,11 +119,14 @@ Route::middleware('auth:sanctum')->group(function(){
 Route::middleware('auth:sanctum')->group(function(){
     Route::prefix('contractor')->group(function(){
         Route::post('/store', [ContractorController::class, 'store']); // POST
+        Route::get('/user/{id}', [ContractorController::class, 'showByUserId']);   
 
-        Route::get('/show/{id}', [ContractorController::class, 'show']);});   
         Route::get('/bids',[BidController::class,'previousbids']);
+        Route::get('/show/{id}', [ContractorController::class, 'index']);
 
-    
+        Route::get('/show', [ContractorController::class, 'index']);
+    });   
+
 });
 
 //  الحصول على نتيجة التقييم 
@@ -121,7 +135,7 @@ Route::get('/bids/{id}/result', [BidController::class, 'result']);
 Route::get('/contract/pdf/{contractor}/{tender}/{bid}', 
  [ContractorController::class, 'generateContractPdf'])->name('contract.pdf');
 
-Route::post('/docsign/callback', [SignatureController::class, 'handleCallback']);
+// Route::post('/docsign/callback', [SignatureController::class, 'handleCallback']);
 
 
 Route::get('/contracts/send/{contractorId}/{tenderId}/{bidId}', 
@@ -130,7 +144,7 @@ Route::get('/contracts/send/{contractorId}/{tenderId}/{bidId}',
 
 
 
-Route::get('/test-signature', [SignatureController::class, 'test']);
+// Route::get('/test-signature', [SignatureController::class, 'test']);
 
 Route::get('/send-to-sign/{contractorId}/{tenderId}/{bidId}', 
 [ContractorController::class, 'sendContractToSign']);
@@ -141,3 +155,30 @@ Route::get('/send-to-sign/{contractorId}/{tenderId}/{bidId}',
 
 
                
+Route::get('/contracts/download/{signatureRequestId}/{bidId}', [ContractorController::class, 'downloadSignedContract']);
+
+
+Route::get('/test-send-contract', [ContractorController ::class , 'testSendContractToSign']);
+
+
+Route::get('/test-env', function () {
+    return env('HELLOSIGN_CLIENT_ID');
+});
+
+
+use App\Services\HelloSignService;
+
+Route::get('/test-hellosign', function (HelloSignService $service) {
+    $testPdf = storage_path('app/test.pdf'); // ملف بسيط صغير
+
+    if (!file_exists($testPdf)) {
+        file_put_contents($testPdf, 'Test Contract');
+    }
+
+    return $service->sendSignatureRequest(
+        'alkhatibeyad3@gmail.com',
+        'اسم تجريبي',
+        $testPdf
+    );
+});
+
