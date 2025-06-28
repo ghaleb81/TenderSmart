@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "129033171520",
+    "project_id": "tendersmart-3a8f7",
+    "storage_bucket": "tendersmart-3a8f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:129033171520:android:a3e01f84e5e7f22a87a5a5",
+        "android_client_info": {
+          "package_name": "com.example.tendersmart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "129033171520-82rpa2vp8do7ohvp63v7jklavqtp4e7n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tendersmart",
+            "certificate_hash": "59aa207feb4e4c7788d78ef4b67d4276e149dbdf"
+          }
+        },
+        {
+          "client_id": "129033171520-gfrord536gmijnepjntdv0otplckn4gu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHOcDUcsymIAK5FOCfzfyGuUAshOF-E4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "129033171520-gfrord536gmijnepjntdv0otplckn4gu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
