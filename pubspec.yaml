@@ -48,10 +48,13 @@ dependencies:
   firebase_core: ^3.14.0
   firebase_messaging: ^15.2.7
   flutter_local_notifications: ^19.2.1
+<<<<<<< HEAD:pubspec.yaml
   open_file: ^3.5.10
   fl_chart: ^1.0.0
   google_sign_in: ^6.1.5
 
+=======
+>>>>>>> 7027af1852efa7354a4872b3c11651c49e212326:frontend/pubspec.yaml
 
 
 
@@ -81,7 +84,10 @@ flutter:
   assets:
     - images/image_1.jpg
     - images/image_2.jpg
+<<<<<<< HEAD:pubspec.yaml
     - images/google_logo.png
+=======
+>>>>>>> 7027af1852efa7354a4872b3c11651c49e212326:frontend/pubspec.yaml
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

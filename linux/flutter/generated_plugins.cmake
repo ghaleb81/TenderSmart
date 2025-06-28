@@ -4,7 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_secure_storage_linux
+<<<<<<< HEAD:linux/flutter/generated_plugins.cmake
   open_file_linux
+=======
+>>>>>>> 7027af1852efa7354a4872b3c11651c49e212326:frontend/linux/flutter/generated_plugins.cmake
   url_launcher_linux
 )
 
